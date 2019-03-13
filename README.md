@@ -1,4 +1,5 @@
-# pnet2019 - Sepsis Challenge 2019 (PLUX Wireless Biosignals S.A. Lisboa)
+# pnet2019 - Sepsis Challenge 2019 
+# (PLUX Wireless Biosignals S.A. Lisboa)
 
 [1. Challenge info](#site)  
 [2. Data (only private access, after team's disclaimer](#data)    
