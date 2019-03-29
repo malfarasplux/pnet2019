@@ -2,7 +2,7 @@
 /training/*.psv
 /training/*.psv
 /explore_ipynb/.ipynb_checkpoints
-/explore_ipynb/__pycache__
+/explore_ipynb/__pycache__/*
 /explore_ipynb/Breast_ESN/.ipynb_checkpoints
-/explore_ipynb/Breast_ESN/__pycache__
+/explore_ipynb/Breast_ESN/__pycache__/*
 /Access_Physionet.jpg
