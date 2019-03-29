@@ -6,3 +6,4 @@
 /explore_ipynb/Breast_ESN/.ipynb_checkpoints
 /explore_ipynb/Breast_ESN/__pycache__/*
 /Access_Physionet.jpg
+*.pyc
