@@ -9,3 +9,4 @@
 /Access_Physionet.jpg
 *.pyc
 explore_ipynb/__pycache__/*
+*.pyc
