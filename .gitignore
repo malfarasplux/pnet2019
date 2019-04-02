@@ -1,6 +1,7 @@
 # Don't track
 /training/*.psv
-/training/*.psv
+/training_setA/*.psv
+/training_setB/*.psv
 /explore_ipynb/.ipynb_checkpoints
 /explore_ipynb/__pycache__/*.pyc
 /explore_ipynb/__pycache__/*
