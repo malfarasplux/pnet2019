@@ -1,5 +1,6 @@
 # Don't track
 /training/*.psv
+/training_1/*.psv
 /training_setA/*.psv
 /training_setB/*.psv
 /explore_ipynb/.ipynb_checkpoints
@@ -7,6 +8,7 @@
 /explore_ipynb/__pycache__/*
 /explore_ipynb/Breast_ESN/.ipynb_checkpoints
 /explore_ipynb/Breast_ESN/__pycache__/*
+/npy/*.npy
 /Access_Physionet.jpg
 *.pyc
 explore_ipynb/__pycache__/*
