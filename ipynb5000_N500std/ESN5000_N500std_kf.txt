@@ -1,0 +1,10 @@
+LAPTOP-IVRLDJQF@Windows-10-10.0.17763-SP0
+2019-04-06 05:05
+Dataset: ../training_1/
+500 	 N
+0.0790 	 th
+0.0864 	 Pr
+0.2451 	 Re
+0.1277 	 F1
+0.9534 	 ACC
+0.7229 	 AUC
