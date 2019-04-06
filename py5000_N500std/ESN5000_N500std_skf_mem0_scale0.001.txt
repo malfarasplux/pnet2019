@@ -1,0 +1,14 @@
+LAPTOP-IVRLDJQF@Windows-10-10.0.17763-SP0
+D:\github\pnet2019\py5000_N500std
+2019-04-06 11:14
+Dataset: ../training_1/
+500 	 N
+1 	 exp
+0.0000 	 mem
+0.0010 	 scale
+0.0654 	 th
+0.0933 	 Pr
+0.2127 	 Re
+0.1297 	 F1
+0.9603 	 ACC
+0.7028 	 AUC
