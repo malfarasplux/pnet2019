@@ -11,6 +11,7 @@
 /ipynb_*
 /npy/*.npy
 /foo_*
+/foo*
 /labels_1/*.psv
 /Access_Physionet.jpg
 *.pyc
