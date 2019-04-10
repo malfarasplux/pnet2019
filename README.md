@@ -10,7 +10,11 @@ https://physionet.org/challenge/2019/
 https://physionet.org/users/shared/challenge-2019/  
 * only private access, after team's disclaimer  
 
-### Approaches
-- Focus on shared features among positive  
-- Cut last hours to standardise dimensions (last 20h, 30h...)  
-- Line by line analysis (no time). Features x Sepsis
+### Approaches (TODO)
+- Combined RandomForest + ESN classification
+- hospA + hospB Cross Validation results  
+- MinMax Normalised ESN
+- N neurons study (40, 100, 200, ... 1000)
+- Separate ESN generation and import as module
+- Create bash sed modification files
+- Establish a fix report structure
