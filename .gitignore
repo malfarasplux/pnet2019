@@ -10,6 +10,7 @@
 /explore_ipynb/Breast_ESN/__pycache__/*
 /ipynb_*
 /npy/*.npy
+/foo_*
 /labels_1/*.psv
 /Access_Physionet.jpg
 *.pyc
