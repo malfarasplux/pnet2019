@@ -8,9 +8,8 @@
 /explore_ipynb/__pycache__/*
 /explore_ipynb/Breast_ESN/.ipynb_checkpoints
 /explore_ipynb/Breast_ESN/__pycache__/*
+/ipynb_*
 /npy/*.npy
 /labels_1/*.psv
 /Access_Physionet.jpg
-*.pyc
-explore_ipynb/__pycache__/*
 *.pyc
