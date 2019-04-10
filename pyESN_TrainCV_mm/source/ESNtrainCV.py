@@ -249,7 +249,7 @@ thsum = 0
 th = np.zeros((1000, 1), dtype = np.double)
 f1 =np.zeros((1000, 1), dtype = np.double)
 
-print("Loop between ",  th_i, th_i+th_step*th_steps)
+print("Threshold: Loop between ",  th_i, th_i+th_step*th_steps)
 for i, j in enumerate(np.arange(th_i, th_f, th_step)):
     th[i] = j
     f1[i] = f1_score(target, results > th[i])
@@ -298,6 +298,7 @@ with open(output_file, 'w') as f:
     f.write('%d \t exp\n' % sigmoid_exponent)
     f.write('%2.4f \t mem\n' % mem)
     f.write('%2.4f \t scale\n' % scale)
+    f.write('(%2.4f, %2.4f, %2.4f) \t th_i, th_f, *th_sc\n' % (th_i, th_f, th_f-th_i))
     f.write('%2.4f \t th\n' % th_max)
     f.write('%2.4f \t Pr\n' % Pr)
     f.write('%2.4f \t Re\n' % Re)
@@ -313,6 +314,7 @@ print('N: %d' % N)
 print('exp: %d' % sigmoid_exponent)
 print('mem: %2.4f' % mem)
 print('scale: %2.4f' % scale)
+print('th_i, th_f, *th_sc: (%2.4f, %2.4f, %2.4f)' % (th_i, th_f, th_f-th_i))
 print('th: %2.4f' % th_max)
 print('Pr: %2.4f' % Pr)
 print('Re: %2.4f' % Re)
