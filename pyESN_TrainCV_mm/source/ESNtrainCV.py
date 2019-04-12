@@ -1,20 +1,30 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 ## Config
-script_name = 'ESNtrainCV'
-path = "../training_setA/"
+dataset = "training_setA"
+path = "../" + dataset +"/"
 kfold_split = 10
 nan_to_neg = True
 biased_regress = True
 normal_equations = True
 mm = True
 std = False
+numpy_load = True
 
 ## ESN parameters
-N_def = 40         # Neurons
-mem_def = 0.13
+N_def = 40          # Neurons
 scale_def = 0.001   # scaling
+mem_def = 0.13      # memory
 exponent_def = 1    # sigmoid exponent
+
+# Script name struct for report
+script_name = 'ESNtrainCV'
+dl_ = '_'
+name_struct_meta = "_N_scale_mem"
+name_struct = [dl_, N_def, dl_, scale_def, dl_, mem_def]
+name_struct = ''.join(str(e) for e in name_struct)
+
 
 ## Imports
 import numpy as np
@@ -34,19 +44,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics import f1_score
 import matplotlib.pyplot as plt
 
-## Folder and files
-fnames = os.listdir(path)  
-fnames.sort()
-if 'README.md' in fnames:
-    fnames.remove('README.md')
-print('last file: ', fnames[-1])
-
-
-
-n = len(fnames)
-print(n, ' files present')
-
-## Read data
+## Read data functions
 def read_challenge_data(input_file, return_header = False):
     with open(input_file, 'r') as f:
         header = f.readline().strip()
@@ -76,27 +74,70 @@ def read_challenge_data_label(input_file, return_header = False):
     else:
         return (data, sep_lab)
 
+
+## Random seed
+np.random.seed(seed=0)
+
 ## Create the feature matrix
 features = []
 patient = []
 sepsis_label = []
+dataloaded = False
 
-## read data
-for i in range(n):
-    input_file = os.path.join(path, fnames[i])
-    if i ==0:
-        data, sep_lab, columns = read_challenge_data_label(input_file, return_header=True)
-    else: 
-        data, sep_lab = read_challenge_data_label(input_file)
-    features.append(data)
-    sepsis_label.append(sep_lab)
-    pat = i * np.ones((sep_lab.shape), dtype=np.int)
-    patient.append(pat)
 
-feature_matrix = np.concatenate(features)
-del(features)
-sepsis_label = np.concatenate(sepsis_label)
-patient = np.concatenate(patient)
+## Read data 
+if not numpy_load:
+    ## Folder and files
+    fnames = os.listdir(path)  
+    fnames.sort()
+    if 'README.md' in fnames:
+        fnames.remove('README.md')
+    print('last file: ', fnames[-1])
+    
+    n = len(fnames)
+    print(n, ' files present')
+    
+    ## read data
+    for i in range(n):
+        input_file = os.path.join(path, fnames[i])
+        if i ==0:
+            data, sep_lab, columns = read_challenge_data_label(input_file, return_header=True)
+        else: 
+            data, sep_lab = read_challenge_data_label(input_file)
+        features.append(data)
+        sepsis_label.append(sep_lab)
+        pat = i * np.ones((sep_lab.shape), dtype=np.int)
+        patient.append(pat)
+
+    feature_matrix = np.concatenate(features)
+    del(features)
+    sepsis_label = np.concatenate(sepsis_label)
+    patient = np.concatenate(patient)
+    dataloaded = True
+    
+else:
+    if mm:
+        npyfilename = "../npy/" + dataset + "_mm.npy"
+        mm = False
+        print(npyfilename, '(mm) to be loaded')
+
+    else:
+        npyfilename = "../npy/" + dataset + ".npy"
+        print(npyfilename, '(mm) to be loaded')
+
+    
+    feature_matrix = np.load(npyfilename)
+    npyfilename = "../npy/" + dataset + "_patient.npy"
+    patient = np.load(npyfilename)
+    npyfilename = "../npy/" + dataset + "_Y.npy"
+    sepsis_label = np.load(npyfilename)
+
+    n = len(np.unique(patient))
+    print(n, ' files present')
+    
+    dataloaded = True
+
+
 
 ## Separate pointers
 feature_phys = feature_matrix[:,:-6]    ## Physiology
@@ -148,12 +189,12 @@ func = sigmoid
 
 
 # Create ESN 
-def feedESN(features, mask, mask_bias, scale, mem):
-    ESN = np.ones((np.shape(features)[0],N), dtype=np.double)
-    IN = np.matmul(features, M) + np.repeat(Mb, np.shape(features)[0], axis=0)
+def feedESN(features, neurons, mask, mask_bias, scale, mem):
+    ESN = np.ones((np.shape(features)[0],neurons), dtype=np.double)
+    IN = np.matmul(features, mask) + np.repeat(mask_bias, np.shape(features)[0], axis=0)
     print(np.shape(IN))
     print(np.min(IN), np.max(IN))
-    p = np.zeros((1,N),dtype=np.double)
+    p = np.zeros((1,neurons),dtype=np.double)
     for i in range(np.shape(features)[0]):
         i
         in_val = scale*IN[i,:]+p*mem
@@ -170,7 +211,7 @@ print(np.min(M), np.max(M))
 print(np.min(Mb), np.max(Mb))
 
 ## Perform ESN feed
-ESN = feedESN(feature_matrix, M, Mb, scale, mem)
+ESN = feedESN(feature_matrix, N, M, Mb, scale, mem)
 
 ## Divide in sets
 X = ESN
@@ -288,10 +329,11 @@ user = platform.uname()[1] + '@' + platform.platform()
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # write to report file
-output_file = script_name + '.txt'
+output_file = 'report_' + script_name + name_struct + '.txt'
 with open(output_file, 'w') as f:
     f.write(user + '\n')
-    f.write(dir_path + '/' + __file__)
+    f.write(dir_path + '\n')
+    f.write(__file__ + '\n')
     f.write(time.strftime("%Y-%m-%d %H:%M") + '\n')
     f.write('Dataset: ' + path + '\n')
     f.write('%d \t N\n' % N)
@@ -307,7 +349,8 @@ with open(output_file, 'w') as f:
     f.write('%2.4f \t AUC\n' % auc)
     
 print(user)
-print(dir_path + '/' + __file__)
+print(dir_path)
+print(__file__)
 print(time.strftime("%Y-%m-%d %H:%M"))
 print('Dataset: ' + path)
 print('N: %d' % N)
@@ -324,9 +367,9 @@ print('AUC: %2.4f' % auc)
 
 ## Write results
 # write to report file
-res = 'res' + script_name + '.out'
+res = 'res_' + script_name + name_struct + '.out'
 with open(res, 'w') as f:
     f.write('Target|Predicted|PredictedLabel %g' % th_max)
-    if data.size != 0:
+    if dataloaded:
         for (s, l) in zip(target, results):
             f.write('\n%d|%g|%d' % (s, l, int(l>th_max)))
