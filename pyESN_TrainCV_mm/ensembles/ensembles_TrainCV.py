@@ -3,17 +3,16 @@
 
 ## Config
 dataset = "training"
-path = "../" + dataset +"/"
+path = "../../" + dataset +"/"
 kfold_split = 10
 nan_to_neg = True
 biased_regress = True
 normal_equations = True
-mm = True
 std = False
 numpy_load = True
 
 ## ESN parameters
-N_def = 200         # Neurons
+N_def = 50         # Neurons
 scale_def = 0.001   # scaling
 mem_def = 0.13      # memory
 exponent_def = 1    # sigmoid exponent
@@ -79,114 +78,23 @@ def read_challenge_data_label(input_file, return_header = False):
 np.random.seed(seed=0)
 
 ## Create the feature matrix
-features = []
-patient = []
-sepsis_label = []
+#features = []
+#patient = []
+#sepsis_label = []
 dataloaded = False
 
-
-## Read data 
-if not numpy_load:
-    ## Folder and files
-    fnames = os.listdir(path)  
-    fnames.sort()
-    if 'README.md' in fnames:
-        fnames.remove('README.md')
-    print('last file: ', fnames[-1])
-    
-    n = len(fnames)
-    print(n, ' files present')
-    
-    ## read data
-    for i in range(n):
-        input_file = os.path.join(path, fnames[i])
-        if i ==0:
-            data, sep_lab, columns = read_challenge_data_label(input_file, return_header=True)
-        else: 
-            data, sep_lab = read_challenge_data_label(input_file)
-        features.append(data)
-        sepsis_label.append(sep_lab)
-        pat = i * np.ones((sep_lab.shape), dtype=np.int)
-        patient.append(pat)
-
-    feature_matrix = np.concatenate(features)
-    del(features)
-    sepsis_label = np.concatenate(sepsis_label)
-    patient = np.concatenate(patient)
-    dataloaded = True
-    
-else:
-    if mm:
-        npyfilename = "../npy/" + dataset + "_mm.npy"
-        mm = False
-        print(npyfilename, '(mm) to be loaded')
-
-    else:
-        npyfilename = "../npy/" + dataset + ".npy"
-        print(npyfilename, '(mm) to be loaded')
-
-    
-    feature_matrix = np.load(npyfilename)
-    npyfilename = "../npy/" + dataset + "_patient.npy"
-    patient = np.load(npyfilename)
-    npyfilename = "../npy/" + dataset + "_Y.npy"
-    sepsis_label = np.load(npyfilename)
-
-    n = len(np.unique(patient))
-    print(n, ' files present')
-    
-    dataloaded = True
-
-
-
-## Separate pointers
-feature_phys = feature_matrix[:,:-6]    ## Physiology
-feature_demog = feature_matrix[:,-6:]   ## Demographics
-
-## Get sepsis patients
-patient_sep = np.zeros(len(sepsis_label),dtype=np.int)
-for i in range(n):
-    i_pat = np.where(patient==i)[0]
-    patient_sep[i_pat] = int(np.sum(sepsis_label[i_pat])>0)*np.ones(len(i_pat), dtype=np.int)
-    
-patient_sep_idx = patient[np.where(patient_sep!=0)]
-patient_healthy_idx = patient[np.where(patient_sep==0)]
-
-## Normalize mm(all) or std (sepsis, phys) vals, feature-based
-if mm:
-    scaler = MinMaxScaler()
-    for i in range(n):
-        i_pat = np.where(patient==i)[0]
-        scaler.fit(feature_matrix[i_pat,:])
-        feature_matrix[i_pat,:] = scaler.transform(feature_matrix[i_pat,:])
-
-elif std:
-    scaler = StandardScaler()
-    scaler.fit(feature_phys[patient_healthy_idx,:])
-    feature_phys[:,:] = scaler.transform(feature_phys[:,:])
-
-## nan to negative
-if nan_to_neg:
-    feature_matrix[np.isnan(feature_matrix)]=-1
-    print("Changed nan to -1")
-    
-## ESN Generation
-N = N_def           # Neurons
-mem = mem_def       # memory
-scale = scale_def   # scaling factor
+## ESN FUNCTIONS
+def get_weights_biasedNE(ESN, target):
+    Y_aux = np.matmul(np.transpose(ESN),target)
+    ESNinv = np.linalg.pinv(np.matmul(np.transpose(ESN),ESN))
+   
+#    w = np.matmul(ESNinv, np.matmul(np.transpose(ESN),target))
+    w = np.matmul(ESNinv, Y_aux)
+    return w
 
 # Nonlinear mapping function
 def sigmoid(x, exponent):
     return 1/(1+np.exp(-exponent*x))-0.5
-
-sigmoid_exponent = exponent_def
-func = sigmoid
-
-#a = np.linspace(-10, 10, 100, False)
-#b = func(a,sigmoid_exponent)
-#plt.plot(a,b)
-#plt.show()
-
 
 # Create ESN (with extra bias neuron)
 def feedESN(features, neurons, mask, mask_bias, scale, mem, sigmoid_exponent):
@@ -202,109 +110,164 @@ def feedESN(features, neurons, mask, mask_bias, scale, mem, sigmoid_exponent):
         p = np.copy(np.roll(ESN[i,:-1],1))
     return ESN
 
-## Mask parameters
-M = 2*np.random.rand(np.shape(feature_matrix)[1],N)-1
-Mb = 2*np.random.rand(1,N)-1
-#print(np.shape(M))
-#print(np.shape(Mb))
-#print(np.min(M), np.max(M))
-#print(np.min(Mb), np.max(Mb))
-
-### Memory tracker (1)
-#from pympler import tracker
-#tr = tracker.SummaryTracker()
-
-### Memory tracker (2)
-#tr.print_diff()
-#print ("****")
-#input()
 
 
-## Perform ESN feed
-ESN = feedESN(feature_matrix, N, M, Mb, scale, mem, sigmoid_exponent)
-del feature_matrix
+### ENSEMBLES LOOP
+ensemble_results = []
 
-
-
-
-## Divide in sets
-X = ESN
-y = sepsis_label
-groups = patient
-
-skf = StratifiedKFold(n_splits=kfold_split)
-skf.get_n_splits(X)
-
-def get_weights_biasedNE(ESN, target):
-    
-    
-    Y_aux = np.matmul(np.transpose(ESN),target)
-    ESNinv = np.linalg.pinv(np.matmul(np.transpose(ESN),ESN))
-
-    # Memory object
-    from pympler import asizeof
-    asizeof.asizeof(ESNinv)
-    print (asizeof.asized(ESNinv, detail=1).format())
-
-    # Memory object
-    asizeof.asizeof(Y_aux)
-    print (asizeof.asized(Y_aux, detail=1).format())
+for k_ensemble in range(5):
+    mm = True
+    features = []
+    patient = []
+    sepsis_label = []
 
     
-#    w = np.matmul(ESNinv, np.matmul(np.transpose(ESN),target))
-    w = np.matmul(ESNinv, Y_aux)
-
+    ## Read data 
+    if not numpy_load:
+        ## Folder and files
+        fnames = os.listdir(path)  
+        fnames.sort()
+        if 'README.md' in fnames:
+            fnames.remove('README.md')
+        print('last file: ', fnames[-1])
+        
+        n = len(fnames)
+        print(n, ' files present')
+        
+        ## read data
+        for i in range(n):
+            input_file = os.path.join(path, fnames[i])
+            if i ==0:
+                data, sep_lab, columns = read_challenge_data_label(input_file, return_header=True)
+            else: 
+                data, sep_lab = read_challenge_data_label(input_file)
+            features.append(data)
+            sepsis_label.append(sep_lab)
+            pat = i * np.ones((sep_lab.shape), dtype=np.int)
+            patient.append(pat)
     
-
-    return w
-#
-#def get_weights_biased(ESN, target):
-#    ESNx = (np.hstack((ESN, np.ones((np.shape(ESN)[0],1), dtype=np.double))))
-#    del ESNx
-#    ESNinv = np.linalg.pinv(ESNx)
-#    w = np.matmul(ESNinv, target)
-#    return w, ESNinv
-   
-## KFold
-results = []
-target = []
-kk = 0
-for train_index, test_index in skf.split(X,y):
-
-    X_train, X_test = X[train_index], X[test_index]
-    y_train, y_test = y[train_index], y[test_index]
-    
-    if biased_regress:
-        if normal_equations:
-
-            w = get_weights_biasedNE(X_train, y_train)
-#            del ESNaux
-#             ESNx = (np.hstack((X_train, np.ones((np.shape(X_train)[0],1), dtype=np.double))))
-#            ESNx = (np.hstack((X_test, np.ones((np.shape(X_test)[0],1), dtype=np.double))))
-#            del X_test
-
-#        else:
-#            w, ESNaux = get_weights_biased(X_train, y_train)
-##            del ESNaux
-##             ESNx = (np.hstack((X_train, np.ones((np.shape(X_train)[0],1), dtype=np.double))))
-#            ESNx = (np.hstack((X_test, np.ones((np.shape(X_test)[0],1), dtype=np.double))))
-#            del X_test
-        Y_pred = (np.matmul(X_test,w))
-
+        feature_matrix = np.concatenate(features)
+        del(features)
+        sepsis_label = np.concatenate(sepsis_label)
+        patient = np.concatenate(patient)
+        dataloaded = True
         
     else:
-        ESNinv = np.linalg.pinv(X_train)
-        w = np.matmul(ESNinv, y_train)
-        Y_pred = (np.matmul(X_test,w))
+        if mm:
+            npyfilename = "../../npy/" + dataset + "_mm.npy"
+            mm = False
+            print(npyfilename, '(mm) to be loaded')
+    
+        else:
+            npyfilename = "../../npy/" + dataset + ".npy"
+            print(npyfilename, '(not mm) to be loaded')
+    
+        
+        feature_matrix = np.load(npyfilename)
+        npyfilename = "../../npy/" + dataset + "_patient.npy"
+        patient = np.load(npyfilename)
+        npyfilename = "../../npy/" + dataset + "_Y.npy"
+        sepsis_label = np.load(npyfilename)
+    
+        n = len(np.unique(patient))
+        print(n, ' files present')
+        
+        dataloaded = True
+    
+    
+    
+    ## Separate pointers
+    feature_phys = feature_matrix[:,:-6]    ## Physiology
+    feature_demog = feature_matrix[:,-6:]   ## Demographics
+    
+    ## Get sepsis patients
+    patient_sep = np.zeros(len(sepsis_label),dtype=np.int)
+    for i in range(n):
+        i_pat = np.where(patient==i)[0]
+        patient_sep[i_pat] = int(np.sum(sepsis_label[i_pat])>0)*np.ones(len(i_pat), dtype=np.int)
+        
+    patient_sep_idx = patient[np.where(patient_sep!=0)]
+    patient_healthy_idx = patient[np.where(patient_sep==0)]
+    
+    ## Normalize mm(all) or std (sepsis, phys) vals, feature-based
+    if mm:
+        scaler = MinMaxScaler()
+        for i in range(n):
+            i_pat = np.where(patient==i)[0]
+            scaler.fit(feature_matrix[i_pat,:])
+            feature_matrix[i_pat,:] = scaler.transform(feature_matrix[i_pat,:])
+    
+    elif std:
+        scaler = StandardScaler()
+        scaler.fit(feature_phys[patient_healthy_idx,:])
+        feature_phys[:,:] = scaler.transform(feature_phys[:,:])
+    
+    ## nan to negative
+    if nan_to_neg:
+        feature_matrix[np.isnan(feature_matrix)]=-1
+        print("Changed nan to -1")
+        
+    ## ESN Generation
+    N = N_def           # Neurons
+    mem = mem_def       # memory
+    scale = scale_def   # scaling factor
+    
+    sigmoid_exponent = exponent_def
+    func = sigmoid
 
-    print(kk, ' realisation ')
-    print("auc: ", roc_auc_score(y_test, Y_pred))
-    kk +=1
-    target.append(y_test)
-    results.append(Y_pred)
+    
+    
+    ## Mask parameters
+    M = 2*np.random.rand(np.shape(feature_matrix)[1],N)-1
+    Mb = 2*np.random.rand(1,N)-1
+    
+    ## Perform ESN feed
+    ESN = feedESN(feature_matrix, N, M, Mb, scale, mem, sigmoid_exponent)
+    del feature_matrix
+    
+    ## Divide in sets
+    X = ESN
+    y = sepsis_label
+    groups = patient
+    
+    skf = StratifiedKFold(n_splits=kfold_split)
+    skf.get_n_splits(X)
+    
+    ## KFold
+    results = []
+    if k_ensemble==0:
+        target = []
+    
+    kk = 0
+    for train_index, test_index in skf.split(X,y):
+    
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        
+        if biased_regress:
+            if normal_equations:
+    
+                w = get_weights_biasedNE(X_train, y_train)
+            Y_pred = (np.matmul(X_test,w))
+    
+            
+        else:
+            ESNinv = np.linalg.pinv(X_train)
+            w = np.matmul(ESNinv, y_train)
+            Y_pred = (np.matmul(X_test,w))
+    
+        print(kk, ' realisation ')
+        print("auc: ", roc_auc_score(y_test, Y_pred))
+        kk +=1
+        if k_ensemble==0:
+            target.append(y_test)
 
+        results.append(Y_pred)
+    ensemble_results.append(np.concatenate(results)) 
+    
 ## Evaluate results
-results = np.concatenate(results)
+#results = np.concatenate(results)
+results = np.mean(np.array(ensemble_results), axis=0)
 target = np.concatenate(target)
 auc = roc_auc_score(target,results)
 print('auc: ', auc)

@@ -3,7 +3,7 @@
 
 ## Config
 dataset = "training"
-path = "../" + dataset +"/"
+path = "../../" + dataset +"/"
 kfold_split = 10
 nan_to_neg = True
 biased_regress = True
@@ -13,7 +13,7 @@ std = False
 numpy_load = True
 
 ## ESN parameters
-N_def = 200         # Neurons
+N_def = 100         # Neurons
 scale_def = 0.001   # scaling
 mem_def = 0.13      # memory
 exponent_def = 1    # sigmoid exponent
@@ -117,19 +117,19 @@ if not numpy_load:
     
 else:
     if mm:
-        npyfilename = "../npy/" + dataset + "_mm.npy"
+        npyfilename = "../../npy/" + dataset + "_mm.npy"
         mm = False
         print(npyfilename, '(mm) to be loaded')
 
     else:
-        npyfilename = "../npy/" + dataset + ".npy"
+        npyfilename = "../../npy/" + dataset + ".npy"
         print(npyfilename, '(mm) to be loaded')
 
     
     feature_matrix = np.load(npyfilename)
-    npyfilename = "../npy/" + dataset + "_patient.npy"
+    npyfilename = "../../npy/" + dataset + "_patient.npy"
     patient = np.load(npyfilename)
-    npyfilename = "../npy/" + dataset + "_Y.npy"
+    npyfilename = "../../npy/" + dataset + "_Y.npy"
     sepsis_label = np.load(npyfilename)
 
     n = len(np.unique(patient))
@@ -236,27 +236,18 @@ skf = StratifiedKFold(n_splits=kfold_split)
 skf.get_n_splits(X)
 
 def get_weights_biasedNE(ESN, target):
-    
-    
     Y_aux = np.matmul(np.transpose(ESN),target)
     ESNinv = np.linalg.pinv(np.matmul(np.transpose(ESN),ESN))
-
-    # Memory object
-    from pympler import asizeof
-    asizeof.asizeof(ESNinv)
-    print (asizeof.asized(ESNinv, detail=1).format())
-
-    # Memory object
-    asizeof.asizeof(Y_aux)
-    print (asizeof.asized(Y_aux, detail=1).format())
-
-    
+   
 #    w = np.matmul(ESNinv, np.matmul(np.transpose(ESN),target))
     w = np.matmul(ESNinv, Y_aux)
-
-    
-
     return w
+
+#    # Memory object
+#    from pympler import asizeof
+#    asizeof.asizeof(ESNinv)
+#    print (asizeof.asized(ESNinv, detail=1).format())
+
 #
 #def get_weights_biased(ESN, target):
 #    ESNx = (np.hstack((ESN, np.ones((np.shape(ESN)[0],1), dtype=np.double))))
