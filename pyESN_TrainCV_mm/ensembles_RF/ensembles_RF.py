@@ -265,9 +265,27 @@ for k_ensemble in range(5):
 
         results.append(Y_pred)
     ensemble_results.append(np.concatenate(results)) 
+
+
+target = np.concatenate(target)
     
 ## RANDOM FOREST KFOLD
+skf = StratifiedKFold(n_splits=kfold_split)
+for train_index, test_index in skf.split(ensemble_results, target, patients_id_shuffled): # lpgo.split(x, y, groups=patients_id):
+    print("TRAIN:", train_index, "TEST:", test_index)
+    X_train, X_test = x_shuffled[train_index], x_shuffled[test_index]
+    y_train, y_test = y_shuffled[train_index], y_shuffled[test_index]
     
+    random_forest = RandomForestClassifier(n_estimators=20, n_jobs=-1)
+    random_forest = random_forest.fit(X_train, y_train)
+    results = random_forest.predict_proba(X_test)[:,1]
+    
+
+    res.append(results)
+    y_test_all.append(y_test)
+    auc.append(roc_auc_score(y_test, results))
+    print(auc[-1])
+
     
     
     
