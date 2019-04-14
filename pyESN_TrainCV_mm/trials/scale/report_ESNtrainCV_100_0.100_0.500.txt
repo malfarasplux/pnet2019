@@ -1,0 +1,16 @@
+omen@Linux-4.8.0-53-generic-x86_64-with-debian-stretch-sid
+/mnt/sda1/github/pnet2019/pyESN_TrainCV_mm/trials
+pyESN_TrainCV_mm.py
+2019-04-14 18:00
+Dataset: ../../training_1/
+100 	 N 
+0.100 	 scale 
+0.500 	 mem 
+1 	 exp
+(-0.0682, 0.2428, 0.3110) 	 th_i, th_f, *th_sc
+0.0755 	 th
+0.1598 	 Pr
+0.2242 	 Re
+0.1866 	 F1
+0.9728 	 ACC
+0.8169 	 AUC
