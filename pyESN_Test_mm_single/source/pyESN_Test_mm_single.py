@@ -9,8 +9,6 @@ biased_regress = True
 normal_equations = True
 mm = True
 std = False
-numpy_load = False
-multi_files = False
 th_max = 0.0685
 th_min = -3.8993
 th_scale = 4.2895
@@ -72,67 +70,15 @@ if __name__ == '__main__':
     sepsis_label = []
     dataloaded = False
     
-    ## Read data 
-    if (not numpy_load) and (multi_files):
-        ## Folder and files
-        fnames = os.listdir(path)  
-        fnames.sort()
-        if 'README.md' in fnames:
-            fnames.remove('README.md')
-    
-        print('last file: ', fnames[-1])
-        
-        n = len(fnames)
-        print(n, ' files present')
-        
-        ## read data
-        for i in range(n):
-            input_file = os.path.join(path, fnames[i])
-            if i ==0:
-                data, sep_lab, columns = ESNtools.read_challenge_data_label(input_file, return_header=True)
-            else: 
-                data, sep_lab = ESNtools.read_challenge_data_label(input_file)
-            features.append(data)
-            sepsis_label.append(sep_lab)
-            pat = i * np.ones((sep_lab.shape), dtype=np.int)
-            patient.append(pat)
-    
-        feature_matrix = np.concatenate(features)
-        del(features)
-        sepsis_label = np.concatenate(sepsis_label)
-        patient = np.concatenate(patient)
-        dataloaded = True
-        
-    elif numpy_load and multi_files:
-        if mm:
-            npyfilename = "../npy/" + dataset + "_mm.npy"
-            mm = False
-            print(npyfilename, '(mm) to be loaded')
-    
-        else:
-            npyfilename = "../npy/" + dataset + ".npy"
-            print(npyfilename, '(not mm) to be loaded')
-    
-        feature_matrix = np.load(npyfilename)
-        npyfilename = "../npy/" + dataset + "_patient.npy"
-        patient = np.load(npyfilename)
-        npyfilename = "../npy/" + dataset + "_Y.npy"
-        sepsis_label = np.load(npyfilename)
-    
-        n = len(np.unique(patient))
-        print(n, ' files present')
-        
-        dataloaded = True
-        
-    elif (not numpy_load) and (not multi_files):
-        n = 1
-        input_file = record_name + '.psv'
-        data, columns = ESNtools.read_challenge_data(input_file, return_header=True)
-        patient = 0*np.ones((data.shape[0],1), dtype=np.int)
-        dataloaded = True
-        features.append(data)
-        feature_matrix = np.concatenate(features)
-        print(feature_matrix.shape)
+    ## Read data      
+    n = 1
+    input_file = record_name + '.psv'
+    data, columns = ESNtools.read_challenge_data(input_file, return_header=True)
+    patient = 0*np.ones((data.shape[0],1), dtype=np.int)
+    dataloaded = True
+    features.append(data)
+    feature_matrix = np.concatenate(features)
+    print(feature_matrix.shape)
 
     
     ## Separate pointers
@@ -211,13 +157,9 @@ if __name__ == '__main__':
     
     ## Write class results
     # write predictions to output file
-    if not multi_files:
-        record_name = sys.argv[1]
-        if record_name.endswith('.psv'):
-            record_name = record_name[:-4]
-    
-    else:
-        record_name = 'y_' + script_name + name_struct
+    record_name = sys.argv[1]
+    if record_name.endswith('.psv'):
+        record_name = record_name[:-4]
     
     output_file = record_name + '.out'
     with open(output_file, 'w') as f:
