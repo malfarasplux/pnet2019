@@ -1,0 +1,16 @@
+omen@Linux-4.8.0-53-generic-x86_64-with-debian-stretch-sid
+/mnt/sda1/github/pnet2019/pyESN_TrainCV_mm/gen_loop
+./genloopCV.py
+2019-04-13 10:55
+Dataset: ../../training/
+100 	 N 
+1 	 exp
+0.120 	 mem 
+0.015 	 scale 
+(-3.7460, 0.4918, 4.2378) 	 th_i, th_f, *th_sc
+0.0681 	 th
+0.1615 	 Pr
+0.2575 	 Re
+0.1985 	 F1
+0.9626 	 ACC
+0.8271 	 AUC
