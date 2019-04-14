@@ -119,6 +119,8 @@ if __name__ == '__main__':
     input_wfile = './w' + name_struct + '.txt'
     w = read_ESN_weights(input_wfile, N)
     print('w: ', np.shape(w))
+    if (N+1) != np.shape(w)[0]:
+        sys.exit('N (+1) must coincide with weight wdim')
     
     ## Nonlinear mapping function
     sigmoid_exponent = exponent_def
