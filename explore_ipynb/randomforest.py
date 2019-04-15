@@ -3,7 +3,8 @@ new_dataset = np.load('new_dataset.npy')
 
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-from sklearn.model_selection import LeaveOneOut, KFold, ShuffleSplit, LeavePGroupsOut, GroupShuffleSplit, GroupKFold
+from sklearn.model_selection import LeaveOneOut, KFold, ShuffleSplit, LeavePGroupsOut, GroupShuffleSplit,\
+    GroupKFold, GridSearchCV, train_test_split, StratifiedKFold
 from sklearn.metrics import f1_score, accuracy_score, roc_auc_score, roc_curve, confusion_matrix
 from sklearn import svm
 from sklearn.neighbors import KNeighborsClassifier as knn
@@ -16,9 +17,66 @@ from sklearn.gaussian_process.kernels import RBF
 from imblearn.over_sampling import SMOTE
 from sklearn.utils import shuffle
 
-x = new_dataset[:,1:-1]
+x = new_dataset[:, 1:-1]
 patients_id = new_dataset[:, 0]
-y = new_dataset[:,-1]
+y = new_dataset[:, -1]
+
+hospA = np.where(patients_id<=20336)[0]
+
+index = int(0.7*len(x))
+x_train, x_test, y_train, y_test = [x[:index], x[index:], y[:index], y[index:]]
+
+param_grid = {
+    'n_estimators': [10, 20, 50, 100],
+    'max_features': ['auto', 'sqrt', 'log2'],
+    'max_depth': [4, 6, 8, 10],
+    'criterion': ['gini', 'entropy']
+}
+random_forest = RandomForestClassifier(n_jobs=1)
+CV_rfc = GridSearchCV(estimator=random_forest, scoring='balanced_accuracy', param_grid=param_grid, verbose=2,
+                      cv=StratifiedKFold(n_splits=10).split(x_train, y_train, patients_id[:index]), n_jobs=1)
+CV_rfc.fit(x_train, y_train)
+parameters = CV_rfc.best_params_
+
+
+# x_A, y_A = x[:hospA], y[:hospA]
+# x_B, y_B = x[hospA:], y[hospA:]
+# random_forest = RandomForestClassifier(n_estimators=20, n_jobs=-1)
+# random_forest = random_forest.fit(x_B, y_B)
+# results = random_forest.predict_proba(x_A)[:, -1]
+
+# fpr, tpr, thresholds = roc_curve(y_A, results, pos_label=1)
+
+# import matplotlib.pylab as plt
+# plt.plot(fpr, tpr)
+
+# threshold = 0
+# accuracy = []
+# f1_score_list = []
+# step = 0.001
+
+# for threshold in np.arange(0, 1, step):
+    # print(threshold)
+    # new_results = np.zeros(len(results))
+    # new_results[np.where(results>threshold)[0]] = 1
+    # new_results[np.where(results<=threshold)[0]] = 0
+    # accuracy.append(accuracy_score(y_A, new_results))
+    # f1_score_list.append(f1_score(y_A, new_results))
+# print(accuracy_score(y_A, new_results))
+# print(f1_score(y_A, new_results))
+
+# plt.plot(f1_score_list)
+# new_threshold = np.array(f1_score_list).argmax() * step
+# print(new_threshold)
+
+# new_results = np.zeros(len(results))
+# new_results[np.where(results>new_threshold)[0]] = 1
+# new_results[np.where(results<=new_threshold)[0]] = 0
+
+# print(accuracy_score(y_A, new_results))
+# print(f1_score(y_A, new_results))
+# print(confusion_matrix(y_A, new_results))
+
 
 # Used to avoid overfit
 
@@ -46,7 +104,8 @@ for train_index, test_index in rs.split(x_shuffled, y_shuffled, patients_id_shuf
     
     #X_train, y_train = SMOTE().fit_resample(X_train, y_train)
     
-    random_forest = RandomForestClassifier(n_estimators=20, n_jobs=-1)
+    random_forest = RandomForestClassifier(criterion=parameters['criterion'], max_depth=parameters['max_depth'],
+        max_features=parameters['max_features'], n_estimators=parameters['n_estimators'])  # n_estimators=100, n_jobs=-1)
     random_forest = random_forest.fit(X_train, y_train)
     results = random_forest.predict_proba(X_test)[:,1]
     
@@ -125,4 +184,4 @@ print(accuracy_score(y_test_all, new_results))
 print(f1_score(y_test_all, new_results))
 print(confusion_matrix(y_test_all, new_results))
 
-print("RandomForest without SMOTE 20!")
+print("RandomForest without SMOTE 100!")

@@ -286,10 +286,10 @@ for train_index, test_index in skf.split(ensemble_results, target, patients_id_s
     auc.append(roc_auc_score(y_test, results))
     print(auc[-1])
 
-    
-    
-    
-    
+print("Mean AUC: ", np.mean(auc), " +- ", np.std(auc))
+
+ensemble_results = res
+target = y_test_all    
 
 ## Evaluate results
 #results = np.concatenate(results)
