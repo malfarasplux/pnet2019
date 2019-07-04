@@ -32,7 +32,7 @@ https://physionet.org/challenge/2019/leaderboard/
 -  Perform grid-search param optimization (N, scale, mem, exp)
 -  Assess sigmoid bias effect
 -  Compare get_sepsis_patient function (speed, same results)
--  Prepare spreadsheet (current approach + stats)
+-  Prepare [spreadsheet](https://docs.google.com/spreadsheets/d/1qoer2i_GP-9oS2-ZxLZC_7PBIqKRqS_byEtowJbXamg/edit#gid=0) (current approach + stats)
 -  Alternative normalization
 
 ##### Approaches (Deprecated)
