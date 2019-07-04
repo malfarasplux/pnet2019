@@ -8,7 +8,8 @@
 
 
 ##  1. Challenge info <a name="site"></a>
-https://physionet.org/challenge/2019/  
+-  https://physionet.org/challenge/2019/  
+-  http://cinc2019.org/
 
 ##  2. Data <a name="data"></a>
 https://physionet.org/users/shared/challenge-2019/  
