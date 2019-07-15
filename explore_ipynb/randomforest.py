@@ -21,22 +21,22 @@ x = new_dataset[:, 1:-1]
 patients_id = new_dataset[:, 0]
 y = new_dataset[:, -1]
 
-hospA = np.where(patients_id<=20336)[0]
+# hospA = np.where(patients_id<=20336)[0]
 
-index = int(0.7*len(x))
-x_train, x_test, y_train, y_test = [x[:index], x[index:], y[:index], y[index:]]
+# index = int(0.7*len(x))
+# x_train, x_test, y_train, y_test = [x[:index], x[index:], y[:index], y[index:]]
 
-param_grid = {
-    'n_estimators': [10, 20, 50, 100],
-    'max_features': ['auto', 'sqrt', 'log2'],
-    'max_depth': [4, 6, 8, 10],
-    'criterion': ['gini', 'entropy']
-}
-random_forest = RandomForestClassifier(n_jobs=1)
-CV_rfc = GridSearchCV(estimator=random_forest, scoring='balanced_accuracy', param_grid=param_grid, verbose=2,
-                      cv=StratifiedKFold(n_splits=10).split(x_train, y_train, patients_id[:index]), n_jobs=1)
-CV_rfc.fit(x_train, y_train)
-parameters = CV_rfc.best_params_
+# param_grid = {
+    # 'n_estimators': [10, 20, 50, 100],
+    # 'max_features': ['auto', 'sqrt', 'log2'],
+    # 'max_depth': [4, 6, 8, 10],
+    # 'criterion': ['gini', 'entropy']
+# }
+# random_forest = RandomForestClassifier(n_jobs=1)
+# CV_rfc = GridSearchCV(estimator=random_forest, scoring='balanced_accuracy', param_grid=param_grid, verbose=2,
+                      # cv=StratifiedKFold(n_splits=10).split(x_train, y_train, patients_id[:index]), n_jobs=1)
+# CV_rfc.fit(x_train, y_train)
+# parameters = CV_rfc.best_params_
 
 
 # x_A, y_A = x[:hospA], y[:hospA]
@@ -102,10 +102,9 @@ for train_index, test_index in rs.split(x_shuffled, y_shuffled, patients_id_shuf
 #     X_train = scaler.transform(X_train)
 #     X_test = scaler.transform(X_test)
     
-    #X_train, y_train = SMOTE().fit_resample(X_train, y_train)
+    X_train, y_train = SMOTE().fit_resample(X_train, y_train)
     
-    random_forest = RandomForestClassifier(criterion=parameters['criterion'], max_depth=parameters['max_depth'],
-        max_features=parameters['max_features'], n_estimators=parameters['n_estimators'])  # n_estimators=100, n_jobs=-1)
+    random_forest = RandomForestClassifier(n_estimators=20, class_weight = 'balanced', n_jobs=-2)  # n_estimators=100, n_jobs=-1)
     random_forest = random_forest.fit(X_train, y_train)
     results = random_forest.predict_proba(X_test)[:,1]
     
