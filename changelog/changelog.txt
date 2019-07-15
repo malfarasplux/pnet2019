@@ -1,7 +1,0 @@
-feedESN added N argument
-feedESN replaced mask-M mask_bias-Mb names
-savenpy script prepared
-npy mm matrices saved
-npy load + flag implemented
-optimised feedESN --> no np.hstack needed
-optimised get_weightsNE --> ESNaux not returned! (problem when evaluating training performance)

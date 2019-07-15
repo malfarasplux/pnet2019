@@ -1,8 +1,0 @@
-vim format
-save header
-python 3
-#!/usr/bin/env python3
-depend
-setup
-next
-run locally
