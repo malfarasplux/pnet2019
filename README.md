@@ -24,15 +24,18 @@ https://physionet.org/users/shared/challenge-2019/
 https://physionet.org/challenge/2019/leaderboard/
 
 ##  5. TODO <a name="todo"></a>
--  Clean repo (stash, backup, rm folders)
--  Run sample test in a Docker via GCloud
--  Run utility function in Hosp A (B) results
--  Create submission root repository +buddy
--  Implement Custom StratifiedKFold
--  Perform grid-search param optimization (N, scale, mem, exp)
--  Assess sigmoid bias effect
--  Compare get_sepsis_patient function (speed, same results)
--  Prepare [spreadsheet](https://docs.google.com/spreadsheets/d/1qoer2i_GP-9oS2-ZxLZC_7PBIqKRqS_byEtowJbXamg/edit#gid=0) (current approach + stats)
+-  <mark>Implement Custom StratifiedKFold (test needed)</mark>  
+-  <mark>Assess sigmoid bias effect</mark>
+-  <mark>Perform grid-search param optimization (N, scale, mem, exp)</mark>
+-  <mark>Prepare [spreadsheet](https://docs.google.com/spreadsheets/d/1qoer2i_GP-9oS2-ZxLZC_7PBIqKRqS_byEtowJbXamg/edit#gid=0) (current approach + stats)</mark>  
+-  ESN to RF feature[6:] train + classify  
+-  Prepare optimisation heatmap  
+-  Re-run cross database examples (with optimal values)   
+-  Clean repo (stash, backup, rm folders)  
+-  Run sample test in a Docker via GCloud  
+-  Run utility function in Hosp A (B) results  
+-  Create submission root repository +buddy  
+-  Compare get_sepsis_patient function (speed, same results) ~done   
 -  Alternative normalization
 
 ## Check this out  
