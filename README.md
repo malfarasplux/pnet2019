@@ -35,6 +35,9 @@ https://physionet.org/challenge/2019/leaderboard/
 -  Prepare [spreadsheet](https://docs.google.com/spreadsheets/d/1qoer2i_GP-9oS2-ZxLZC_7PBIqKRqS_byEtowJbXamg/edit#gid=0) (current approach + stats)
 -  Alternative normalization
 
+## Check this out  
+ESN Time series https://towardsdatascience.com/predicting-stock-prices-with-echo-state-networks-f910809d23d4  
+
 ##### Approaches (Deprecated)
 - Combined RandomForest + ESN classification
 - hospA + hospB Cross Validation results  
