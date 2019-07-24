@@ -14,13 +14,13 @@ numpy_load = False
 
 ## ESN parameters
 N_def = 200         # Neurons
-scale_def = 1.0   # scaling
-mem_def = 0.5      # memory
+scale_def = 0.1   # scaling
+mem_def = 0.001      # memory
 exponent_def = 0.1    # sigmoid exponent
 
 
 # Script name struct for report
-script_name = 'ESNtrainCV'
+script_name = 'ESNtrainCVmod'
 dl_ = '_'
 name_struct_meta = "_N_scale_mem"
 name_struct = [dl_, N_def, dl_, scale_def, dl_, mem_def]
@@ -68,7 +68,7 @@ def nan_bounds(feats):
             # print("pointer_right:", pointer_right)
         else:
             val_right = feats[pointer_right]
-            feats[pointer_right+1:] = val_right*np.ones((1,len(feats)-pointer_right-1),dtype=np.float)
+            feats[pointer_right+1:] = val_right*np.ones((1,len(ifeat)-pointer_right-1),dtype=np.float)
             fix_right = False 
         
 # nan interpolation

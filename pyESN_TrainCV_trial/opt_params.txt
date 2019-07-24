@@ -1,0 +1,6 @@
+## ESN parameters
+N_def = 200         # Neurons
+scale_def = 0.1   # scaling
+mem_def = 0.001      # memory
+exponent_def = 0.1    # sigmoid exponent
+
