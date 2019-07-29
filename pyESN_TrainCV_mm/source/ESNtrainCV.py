@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 ## Config
-dataset = "training_setA"
-path = "../" + dataset +"/"
+dataset = "training"
+path = "../../" + dataset +"/"
 kfold_split = 10
 nan_to_neg = True
 biased_regress = True
@@ -13,18 +13,15 @@ std = False
 numpy_load = True
 
 ## ESN parameters
-N_def = 40          # Neurons
-scale_def = 0.001   # scaling
-mem_def = 0.13      # memory
+N_def = 100         # Neurons
+scale_def = 0.500      # scaling
+mem_def = 0.500      # memory
 exponent_def = 1    # sigmoid exponent
 
 # Script name struct for report
 script_name = 'ESNtrainCV'
-dl_ = '_'
 name_struct_meta = "_N_scale_mem"
-name_struct = [dl_, N_def, dl_, scale_def, dl_, mem_def]
-name_struct = ''.join(str(e) for e in name_struct)
-
+name_struct = '_{:03d}_{:1.3f}_{:1.3f}'.format(N_def, scale_def, mem_def)
 
 ## Imports
 import numpy as np
@@ -43,6 +40,7 @@ from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import f1_score
 import matplotlib.pyplot as plt
+import ESNtools
 
 ## Read data functions
 def read_challenge_data(input_file, return_header = False):
@@ -73,6 +71,17 @@ def read_challenge_data_label(input_file, return_header = False):
 
     else:
         return (data, sep_lab)
+
+## Get sepsis patients
+def get_sepsis_patients(sepsis_label, patient):
+    patient_sep = np.zeros(len(sepsis_label),dtype=np.int)
+    for i in range(n):
+        i_pat = np.where(patient==i)[0]
+        patient_sep[i_pat] = int(np.sum(sepsis_label[i_pat])>0)*np.ones(len(i_pat), dtype=np.int)
+        
+    patient_sep_idx = patient[np.where(patient_sep!=0)]
+    patient_healthy_idx = patient[np.where(patient_sep==0)]
+    return patient_sep, patient_sep_idx, patient_healthy_idx
 
 
 ## Random seed
@@ -117,19 +126,19 @@ if not numpy_load:
     
 else:
     if mm:
-        npyfilename = "../npy/" + dataset + "_mm.npy"
+        npyfilename = "../../npy/" + dataset + "_mm.npy"
         mm = False
         print(npyfilename, '(mm) to be loaded')
 
     else:
-        npyfilename = "../npy/" + dataset + ".npy"
-        print(npyfilename, '(mm) to be loaded')
+        npyfilename = "../../npy/" + dataset + ".npy"
+        print(npyfilename, '(not mm) to be loaded')
 
     
     feature_matrix = np.load(npyfilename)
-    npyfilename = "../npy/" + dataset + "_patient.npy"
+    npyfilename = "../../npy/" + dataset + "_patient.npy"
     patient = np.load(npyfilename)
-    npyfilename = "../npy/" + dataset + "_Y.npy"
+    npyfilename = "../../npy/" + dataset + "_Y.npy"
     sepsis_label = np.load(npyfilename)
 
     n = len(np.unique(patient))
@@ -143,15 +152,6 @@ else:
 feature_phys = feature_matrix[:,:-6]    ## Physiology
 feature_demog = feature_matrix[:,-6:]   ## Demographics
 
-## Get sepsis patients
-patient_sep = np.zeros(len(sepsis_label),dtype=np.int)
-for i in range(n):
-    i_pat = np.where(patient==i)[0]
-    patient_sep[i_pat] = int(np.sum(sepsis_label[i_pat])>0)*np.ones(len(i_pat), dtype=np.int)
-    
-patient_sep_idx = patient[np.where(patient_sep!=0)]
-patient_healthy_idx = patient[np.where(patient_sep==0)]
-
 ## Normalize mm(all) or std (sepsis, phys) vals, feature-based
 if mm:
     scaler = MinMaxScaler()
@@ -161,6 +161,8 @@ if mm:
         feature_matrix[i_pat,:] = scaler.transform(feature_matrix[i_pat,:])
 
 elif std:
+    ## (Get sepsis patients)
+    patient_sep, patient_sep_idx, patient_healthy_idx = get_sepsis_patients(sepsis_label, patient)
     scaler = StandardScaler()
     scaler.fit(feature_phys[patient_healthy_idx,:])
     feature_phys[:,:] = scaler.transform(feature_phys[:,:])
@@ -170,48 +172,23 @@ if nan_to_neg:
     feature_matrix[np.isnan(feature_matrix)]=-1
     print("Changed nan to -1")
     
-## ESN Generation
+## ESN Generation parameters
 N = N_def           # Neurons
 mem = mem_def       # memory
 scale = scale_def   # scaling factor
 
-# Nonlinear mapping function
-def sigmoid(x, exponent):
-    return 1/(1+np.exp(-exponent*x))-0.5
-
+## Nonlinear mapping function
 sigmoid_exponent = exponent_def
-func = sigmoid
-
-#a = np.linspace(-10, 10, 100, False)
-#b = func(a,sigmoid_exponent)
-#plt.plot(a,b)
-#plt.show()
-
-
-# Create ESN 
-def feedESN(features, neurons, mask, mask_bias, scale, mem):
-    ESN = np.ones((np.shape(features)[0],neurons), dtype=np.double)
-    IN = np.matmul(features, mask) + np.repeat(mask_bias, np.shape(features)[0], axis=0)
-    print(np.shape(IN))
-    print(np.min(IN), np.max(IN))
-    p = np.zeros((1,neurons),dtype=np.double)
-    for i in range(np.shape(features)[0]):
-        i
-        in_val = scale*IN[i,:]+p*mem
-        ESN[i,:] = func(in_val, sigmoid_exponent) #Apply transform
-        p = np.copy(np.roll(ESN[i,:],1))
-    return ESN
+func = ESNtools.sigmoid
 
 ## Mask parameters
 M = 2*np.random.rand(np.shape(feature_matrix)[1],N)-1
 Mb = 2*np.random.rand(1,N)-1
-print(np.shape(M))
-print(np.shape(Mb))
-print(np.min(M), np.max(M))
-print(np.min(Mb), np.max(Mb))
 
 ## Perform ESN feed
-ESN = feedESN(feature_matrix, N, M, Mb, scale, mem)
+print('ESN: ')
+ESN = ESNtools.feedESN(feature_matrix, N, M, Mb, scale, mem, func, sigmoid_exponent)
+del feature_matrix
 
 ## Divide in sets
 X = ESN
@@ -221,22 +198,6 @@ groups = patient
 skf = StratifiedKFold(n_splits=kfold_split)
 skf.get_n_splits(X)
 
-def get_weights_biasedNE(ESN, target):
-    ESNx = (np.hstack((ESN, np.ones((np.shape(ESN)[0],1), dtype=np.double))))
-    ESNt = np.transpose(ESNx)
-    ESNinv = np.linalg.pinv(np.matmul(ESNt,ESNx))
-    del ESNx
-    ESNaux = np.matmul(ESNinv, ESNt)
-    w = np.matmul(ESNaux, target)
-    return w, ESNaux
-
-def get_weights_biased(ESN, target):
-    ESNx = (np.hstack((ESN, np.ones((np.shape(ESN)[0],1), dtype=np.double))))
-    del ESNx
-    ESNinv = np.linalg.pinv(ESNx)
-    w = np.matmul(ESNinv, target)
-    return w, ESNinv
-    
 ## KFold
 results = []
 target = []
@@ -248,22 +209,10 @@ for train_index, test_index in skf.split(X,y):
     
     if biased_regress:
         if normal_equations:
-            w, ESNaux = get_weights_biasedNE(X_train, y_train)
-            del ESNaux
-#             ESNx = (np.hstack((X_train, np.ones((np.shape(X_train)[0],1), dtype=np.double))))
-            ESNx = (np.hstack((X_test, np.ones((np.shape(X_test)[0],1), dtype=np.double))))
-            del X_test
+            w = ESNtools.get_weights_lu_biasedNE(X_train, y_train)
 
-        else:
-            w, ESNaux = get_weights_biased(X_train, y_train)
-            del ESNaux
-#             ESNx = (np.hstack((X_train, np.ones((np.shape(X_train)[0],1), dtype=np.double))))
-            ESNx = (np.hstack((X_test, np.ones((np.shape(X_test)[0],1), dtype=np.double))))
-            del X_test
+        Y_pred = (np.matmul(X_test,w))
 
-        Y_pred = (np.matmul(ESNx,w))
-
-        
     else:
         ESNinv = np.linalg.pinv(X_train)
         w = np.matmul(ESNinv, y_train)
@@ -292,16 +241,17 @@ f1 =np.zeros((1000, 1), dtype = np.double)
 
 print("Threshold: Loop between ",  th_i, th_i+th_step*th_steps)
 for i, j in enumerate(np.arange(th_i, th_f, th_step)):
-    th[i] = j
-    f1[i] = f1_score(target, results > th[i])
-    thsum = thsum + th[i]
-    if i%100 == 0:
-        print(i, th[i], f1[i])
+    if j < th_steps:
+        th[i] = j
+        f1[i] = f1_score(target, results > th[i])
+        thsum = thsum + th[i]
+        if i%100 == 0:
+            print(i, th[i], f1[i])
 
-    if f1[i] < 0.001 and np.abs(thsum) > 0:
-        th = th[:i]
-        f1 = f1[:i]
-        break
+        if f1[i] < 0.001 and np.abs(thsum) > 0:
+            th = th[:i]
+            f1 = f1[:i]
+            break
 
 ## Max Threshold
 th_max = th[np.argmax(f1)]
@@ -336,10 +286,10 @@ with open(output_file, 'w') as f:
     f.write(__file__ + '\n')
     f.write(time.strftime("%Y-%m-%d %H:%M") + '\n')
     f.write('Dataset: ' + path + '\n')
-    f.write('%d \t N\n' % N)
+    f.write('{:03d} \t N \n'.format(N))
+    f.write('{:1.3f} \t scale \n'.format(scale))
+    f.write('{:1.3f} \t mem \n'.format(mem))
     f.write('%d \t exp\n' % sigmoid_exponent)
-    f.write('%2.4f \t mem\n' % mem)
-    f.write('%2.4f \t scale\n' % scale)
     f.write('(%2.4f, %2.4f, %2.4f) \t th_i, th_f, *th_sc\n' % (th_i, th_f, th_f-th_i))
     f.write('%2.4f \t th\n' % th_max)
     f.write('%2.4f \t Pr\n' % Pr)
@@ -353,10 +303,10 @@ print(dir_path)
 print(__file__)
 print(time.strftime("%Y-%m-%d %H:%M"))
 print('Dataset: ' + path)
-print('N: %d' % N)
+print('N: {:03d}'.format(N))
+print('scale: {:1.3f}'.format(scale))
+print('mem: {:1.3f}'.format(mem))
 print('exp: %d' % sigmoid_exponent)
-print('mem: %2.4f' % mem)
-print('scale: %2.4f' % scale)
 print('th_i, th_f, *th_sc: (%2.4f, %2.4f, %2.4f)' % (th_i, th_f, th_f-th_i))
 print('th: %2.4f' % th_max)
 print('Pr: %2.4f' % Pr)
@@ -367,9 +317,9 @@ print('AUC: %2.4f' % auc)
 
 ## Write results
 # write to report file
-res = 'res_' + script_name + name_struct + '.out'
-with open(res, 'w') as f:
-    f.write('Target|Predicted|PredictedLabel %g' % th_max)
-    if dataloaded:
-        for (s, l) in zip(target, results):
-            f.write('\n%d|%g|%d' % (s, l, int(l>th_max)))
+#res = 'res_' + script_name + name_struct + '.out'
+#with open(res, 'w') as f:
+#    f.write('Target|Predicted|PredictedLabel %g' % th_max)
+#    if dataloaded:
+#        for (s, l) in zip(target, results):
+#            f.write('\n%d|%g|%d' % (s, l, int(l>th_max)))

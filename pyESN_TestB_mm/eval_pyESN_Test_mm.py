@@ -11,16 +11,15 @@ mm = True
 std = False
 numpy_load = True
 multi_files = True
-th_max = 0.0714
-th_min = -0.1093
-th_scale = 0.3132
-
+th_max = 0.0625 
+th_min = -0.1864
+th_scale = 124.4829
 
 ## ESN parameters
-N_def = 100         # Neurons
-scale_def = 0.500   # scaling
-mem_def = 0.500     # memory
-exponent_def = 1    # sigmoid exponent
+N_def = 200         # Neurons
+scale_def = 0.100   # scaling
+mem_def = 0.001     # memory
+exponent_def = 0.1    # sigmoid exponent
 
 # Script name struct for report
 script_name = 'eval_ESNtest_mm'

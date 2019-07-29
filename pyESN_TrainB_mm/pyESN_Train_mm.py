@@ -12,10 +12,10 @@ std = False
 numpy_load = True
 
 ## ESN parameters
-N_def = 100         # Neurons
-scale_def = 0.500   # scaling
-mem_def = 0.500     # memory
-exponent_def = 1    # sigmoid exponent
+N_def = 200         # Neurons
+scale_def = 0.100   # scaling
+mem_def = 0.001     # memory
+exponent_def = 0.1  # sigmoid exponent
 
 # Script name struct for report
 script_name = 'ESNtrain_mm'
