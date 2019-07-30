@@ -12,10 +12,10 @@ std = False
 numpy_load = True
 
 ## ESN parameters
-N_def = 100         # Neurons
-scale_def = 0.500   # scaling
-mem_def = 0.500     # memory
-exponent_def = 1    # sigmoid exponent
+N_def = 200         # Neurons
+scale_def = .1   # scaling
+mem_def = .001     # memory
+exponent_def = .1    # sigmoid exponent
 
 # Script name struct for report
 script_name = 'ESNtrain_mm_th'
@@ -71,21 +71,26 @@ if not numpy_load:
     dataloaded = True
     
 else:
-    if mm:
-        npyfilename = "../npy/" + dataset + "_mm.npy"
-        mm = False
-        print(npyfilename, '(mm) to be loaded')
-
-    else:
-        npyfilename = "../npy/" + dataset + ".npy"
-        print(npyfilename, '(mm) to be loaded')
+    # if mm:
+    #     npyfilename = "../npy/" + dataset + "_mm.npy"
+    #     mm = False
+    #     print(npyfilename, '(mm) to be loaded')
+    #
+    # else:
+    #     npyfilename = "../npy/" + dataset + ".npy"
+    #     print(npyfilename, '(mm) to be loaded')
 
     
-    feature_matrix = np.load(npyfilename)
-    npyfilename = "../npy/" + dataset + "_patient.npy"
-    patient = np.load(npyfilename)
-    npyfilename = "../npy/" + dataset + "_Y.npy"
-    sepsis_label = np.load(npyfilename)
+    # feature_matrix = np.load(npyfilename)
+    # npyfilename = "../npy/" + dataset + "_patient.npy"
+    # patient = np.load(npyfilename)
+    # npyfilename = "../npy/" + dataset + "_Y.npy"
+    # sepsis_label = np.load(npyfilename)
+
+    dataset = np.load("D:\\Physionet Challenge\\new_dataset_A.npy")
+    patient = dataset[:, -1]
+    feature_matrix = dataset[:, :-3]
+    sepsis_label = dataset[:, -3]
 
     n = len(np.unique(patient))
     print(n, ' files present')
@@ -96,14 +101,14 @@ else:
 feature_phys = feature_matrix[:,:-6]    ## Physiology
 feature_demog = feature_matrix[:,-6:]   ## Demographics
 
-## Get sepsis patients
-patient_sep = np.zeros(len(sepsis_label),dtype=np.int)
-for i in range(n):
-    i_pat = np.where(patient==i)[0]
-    patient_sep[i_pat] = int(np.sum(sepsis_label[i_pat])>0)*np.ones(len(i_pat), dtype=np.int)
-    
-patient_sep_idx = patient[np.where(patient_sep!=0)]
-patient_healthy_idx = patient[np.where(patient_sep==0)]
+# ## Get sepsis patients
+# patient_sep = np.zeros(len(sepsis_label),dtype=np.int)
+# for i in range(n):
+#     i_pat = np.where(patient==i)[0]
+#     patient_sep[i_pat] = int(np.sum(sepsis_label[i_pat])>0)*np.ones(len(i_pat), dtype=np.int)
+#
+# patient_sep_idx = patient[np.where(patient_sep!=0)]
+# patient_healthy_idx = patient[np.where(patient_sep==0)]
 
 ## Normalize mm(all) or std (sepsis, phys) vals, feature-based
 if mm:
@@ -116,7 +121,7 @@ if mm:
 elif std:
     scaler = StandardScaler()
     scaler.fit(feature_phys[patient_healthy_idx,:])
-    feature_phys[:,:] = scaler.transform(feature_phys[:,:])
+    feature_phys[:,:] = scaler.transform(feature_phys[:, :])
 
 ## nan to negative
 if nan_to_neg:

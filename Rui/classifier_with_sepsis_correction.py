@@ -12,6 +12,8 @@ from sklearn.svm import LinearSVC, OneClassSVM, SVC
 from sklearn.neural_network import MLPClassifier
 from scipy import linalg
 from imblearn.over_sampling import SMOTE
+from sklearn.metrics.pairwise import cosine_similarity
+from scipy.stats import pearsonr
 
 
 def replace_nan_by_value(data, value=None):
@@ -44,7 +46,7 @@ def late_onset_sepsis(dataset, hours_to_onset=6):
             flag = True
             j = i
             while j < i+hours_to_onset:
-                print("######################3  HERE  #############################3")
+                print("#######################  HERE  #############################3")
                 dataset[j, -3] = 0
                 j += 1
             i = j
@@ -58,19 +60,46 @@ def mean_wave(segments):
     organized_segment = segments.copy().T
     mean_wave = [np.mean(seg) for seg in organized_segment]
 
-    return mean_wave
+    return np.array(mean_wave)
 
 def compute_distance_to_mean_wave_patient(dataset):
     comparison_matrix = []
+    index = [0, 8, 14, 15, 20, 26, 27, 32, -3, -2, -1]
+
     for patient_id in np.unique(dataset[:, -1]):
         print(patient_id)
-        patient = dataset[np.where(dataset[:, -1] == patient_id)[0]][:, :-3]
+        patient = dataset[np.where(dataset[:, -1] == patient_id)[0]] # [:, :-3]
         scaler = MinMaxScaler(feature_range=(0, 1))
         scaler = scaler.fit(patient)
         patient = scaler.transform(patient)
+        patient = patient[:, index][:, :-3]
+        # aux_mean_wave = mean_wave(patient[:, :-6])
         aux_mean_wave = mean_wave(patient)
         for line in patient:
-            comparison_matrix.append(linalg.norm(line-aux_mean_wave))
+            # comparison_matrix.append(linalg.norm(line[:, :-6]-aux_mean_wave))
+            # comparison_matrix.append(linalg.norm(line[:-3] - aux_mean_wave))
+            # comparison_matrix.append(pearsonr(line, aux_mean_wave))
+            comparison_matrix.append(cosine_similarity(line.reshape(1, -1), aux_mean_wave.reshape(1, -1)))
+            # comparison_matrix.append(np.abs(line[:, :-6]-aux_mean_wave))
+    return comparison_matrix
+
+
+from numba import jit
+
+@jit()
+def compute_distance_to_mean_wave(dataset):
+    index = [0, 8, 14, 15, 20, 26, 27, 32, -3, -2, -1]
+    comparison_matrix = []
+    # scaler = MinMaxScaler(feature_range=(0, 1))
+    # scaler = scaler.fit(dataset)
+    # dataset = scaler.transform(dataset)
+    aux_mean_wave = mean_wave(dataset[:, index][np.where(dataset[:, -2] == 0)[0]][:, :-3])
+    for i, line in enumerate(dataset[:, index][:, :-3]):
+        print(i)
+        comparison_matrix.append(linalg.norm(line - aux_mean_wave))
+        # comparison_matrix.append(pearsonr(line, aux_mean_wave))
+        # comparison_matrix.append(cosine_similarity(line[:-9].reshape(1, -1), aux_mean_wave.reshape(1, -1)))
+        # comparison_matrix.append(np.abs(line[:, :-6]-aux_mean_wave))
     return comparison_matrix
 
 
@@ -94,16 +123,38 @@ def get_patients_by_health(dataset):
     dataset = healthy
     return dataset
 
+
+def block_hour(dataset, hours=4):
+    new_dataset = []
+    for patient_id in np.unique(dataset[:, -1]):
+        print("Patient ID: ", patient_id)
+        patient_index = np.where(dataset[:, -1] == patient_id)[0]
+        patient = dataset[patient_index]
+        for i in range(len(patient) - hours):
+            print(i)
+            if 1 in patient[i:i + hours, -3]:
+                num = 1
+            else:
+                num = 0
+            new_dataset.append(np.concatenate([np.concatenate(patient[i:i + hours, :-3]), [num, num, num]]))
+    return np.array(new_dataset)
+
+
 # dataset = get_patients_by_health(dataset)
 # np.save('healthy_patients_normal_subs_A_sepsis_late', dataset)
-dataset = np.load('sepsis_patients_normal_subs_A_sepsis_late.npy')
+# dataset = np.load('sepsis_patients_normal_subs_A_sepsis_late.npy')
+dataset = np.load("Datasets/dataset_A_normal_subs.npy")
+patients_id = dataset[:, -1]
+# indexes = [16, 38, 37, 36, 35]
+indexes = [0, 8, 14, 15, 20, 26, 27, 32, -3, -2, -1]
+dataset = block_hour(dataset, hours=5)
+# dataset = dataset[:, index]
 print(dataset.shape)
 
 # datasets = ["Datasets/dataset_A_mean_subs_sepsis_late.npy", "Datasets/dataset_A_normal_subs_sepsis_late.npy",
 #             "Datasets/dataset_A_zero_subs_sepsis_late.npy"]
 subs = ['MEAN', 'NORMAL', 'ZERO']
 i = 0
-#
 acc = {}
 f1 = {}
 auc = {}
@@ -111,6 +162,7 @@ skf = StratifiedKFold(n_splits=10)
 # for i, dataset_name in enumerate(datasets):
 #     dataset = np.load(dataset_name)
 X = dataset[:, :-3]
+
 # scaler = MinMaxScaler(feature_range=(0, 1))
 # scaler = scaler.fit(X)
 # X = scaler.transform(X)
@@ -122,9 +174,15 @@ res = []
 y_test_all = []
 
 for train_index, test_index in skf.split(X, y):
+
     print("TRAIN:", train_index, "TEST:", test_index)
     X_train, X_test = X[train_index], X[test_index]
     y_train, y_test = y[train_index], y[test_index]
+    patients_id_train, patients_id_test = patients_id[train_index], patients_id[test_index]
+
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler = scaler.fit(X)
+    X = scaler.transform(X)
 
     # X_train, y_train = SMOTE().fit_resample(X_train, y_train)
 
@@ -135,23 +193,37 @@ for train_index, test_index in skf.split(X, y):
     #                                    ], n_jobs=-1, voting='soft')
 
     # elf = GaussianNB()
-    elf = OneClassSVM(gamma='auto')
-    # elf = RandomForestClassifier(n_estimators=100)
+    # elf = OneClassSVM(gamma='auto')
+    elf = RandomForestClassifier(n_estimators=20, class_weight='balanced')
     # elf = AdaBoostClassifier(base_estimator=GaussianNB(), n_estimators=1000)
     # elf = ExtraTreesClassifier(n_estimators=20)
     # elf = GradientBoostingClassifier(n_estimators=20)
     # elf = MLPClassifier()
 
-    n_estimators = 10
-    elf = OneVsRestClassifier(
-        BaggingClassifier(SVC(kernel='linear', probability=True, class_weight={0: 100, 1: .1}), max_samples=1.0 / n_estimators,
-                          n_estimators=n_estimators))
+    # n_estimators = 10
+    # elf = OneVsRestClassifier(
+    #     BaggingClassifier(SVC(kernel='linear', probability=True, class_weight={0: 100, 1: .1}), max_samples=1.0 / n_estimators,
+    #                       n_estimators=n_estimators, n_jobs=-1))
     print("Start training...")
 
-    elf = elf.fit(X_train, y_train*-1)
+    elf = elf.fit(X_train, y_train)
     print("Start testing...")
     pred = elf.predict_proba(X_test)[:, 1]
     results = elf.predict(X_test)
+    # l = 0
+    # previous_id = patients_id_test[l]
+    # previous_results = results[l]
+    # previous_pred = pred[l]
+    # while l in range(len(patients_id_test)):
+    #     print("Changing patient: ", patients_id_test[l])
+    #     if patients_id_test[l] == previous_id and previous_results == 1:
+    #         results[l] = 1
+    #     if patients_id_test[l] == previous_id and previous_pred > .5:
+    #         pred[l] = 1
+    #     previous_id = patients_id_test[l]
+    #     previous_results = results[l]
+    #     l += 1
+
     res.append(pred)
     y_test_all.append(y_test)
     acc[subs[i]].append(accuracy_score(results, y_test))

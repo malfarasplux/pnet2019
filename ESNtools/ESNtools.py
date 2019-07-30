@@ -89,8 +89,9 @@ def feedESN(features, neurons, mask, mask_bias, scale, mem, func, f_arg):
 
     f_arg : (float) function parameter. sigmoid exponent or slope in rect
     """
+    # TODO: Include mask and mask_bias, input_seed
     
-    ESN = np.hstack((np.matmul(features, mask), np.ones((np.shape(features)[0],1), dtype=np.double)))
+    ESN = np.hstack((np.matmul(features, mask), np.ones((np.shape(features)[0], 1), dtype=np.double)))
     print(np.shape(ESN))
     print(np.min(ESN), np.max(ESN))
     p = np.zeros((1,neurons),dtype=np.double)

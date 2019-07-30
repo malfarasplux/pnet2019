@@ -2,15 +2,15 @@ import numpy as np
 from os import listdir
 
 
-path = "old_data/"
-path = r"D:\Physionet Challenge\GitHub\pnet2019\training\\"
+path = "D:\Physionet Challenge\old_data\\"
+# path = r"D:\Physionet Challenge\GitHub\pnet2019\training\\"
 
 
 def generate_new_dataset(path, name='new_dataset_AB.npy'):
     dataset = np.zeros(shape=(1, 43))
     for i, file in enumerate(listdir(path)):
         print(i)
-        if 'p1' in file:
+        if True: #'p1' in file:
             with open(path+file, 'r') as f:
                 header = f.readline().strip()
                 column_names = header.split('|')
@@ -25,10 +25,11 @@ def generate_new_dataset(path, name='new_dataset_AB.npy'):
                 data = np.hstack([data, id_set])
                 dataset = np.vstack([dataset, data])
     print(dataset.shape)
-    np.save(name, dataset)
+    np.save(name, dataset[1:])
 
 
 def GroupStratifiedKFold(dataset, n_split=10):
+    # TODO: comment on the dataset input
     old_id = 0
     patient = []
     patients_healthy_ind = []
