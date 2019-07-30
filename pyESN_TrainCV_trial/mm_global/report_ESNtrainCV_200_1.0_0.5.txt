@@ -1,0 +1,16 @@
+LAPTOP-IVRLDJQF@Windows-10-10.0.17763-SP0
+D:\github\pnet2019\pyESN_TrainCV_trial
+ESNtrainCV_1_trial.py
+2019-07-22 17:19
+Dataset: ../training_1/
+200 	 N
+0.1000 	 exp
+0.5000 	 mem
+1.0000 	 scale
+(-0.1489, 0.3814, 0.5304) 	 th_i, th_f, *th_sc
+0.0903 	 th
+0.1520 	 Pr
+0.1941 	 Re
+0.1705 	 F1
+0.9737 	 ACC
+0.7566 	 AUC

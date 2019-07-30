@@ -1,0 +1,4 @@
+feedin code performs multiple feedESN operations (it is within the for loop)
+feature_matrix is not deleted (freed)
+
+memopt performs a single feedESN

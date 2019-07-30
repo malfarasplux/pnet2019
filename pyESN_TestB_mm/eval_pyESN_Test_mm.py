@@ -11,16 +11,16 @@ mm = True
 std = False
 numpy_load = True
 multi_files = True
-th_max = 0.0714
-th_min = -0.1093
-th_scale = 0.3132
+th_max = 0.0814 
+th_min = -0.1647
+th_scale = 1.6299
 
 
 ## ESN parameters
-N_def = 100         # Neurons
-scale_def = 0.500   # scaling
-mem_def = 0.500     # memory
-exponent_def = 1    # sigmoid exponent
+N_def = 200         # Neurons
+scale_def = 0.100   # scaling
+mem_def = 0.001     # memory
+exponent_def = 0.1    # sigmoid exponent
 
 # Script name struct for report
 script_name = 'eval_ESNtest_mm'
@@ -243,7 +243,7 @@ with open(output_file, 'w') as f:
     f.write('{:03d} \t N \n'.format(N))
     f.write('{:1.3f} \t scale \n'.format(scale))
     f.write('{:1.3f} \t mem \n'.format(mem))
-    f.write('%d \t exp\n' % sigmoid_exponent)
+    f.write('{:1.3f} \t exp\n' .format(sigmoid_exponent))
     f.write('%2.4f \t th\n' % th_max)
     f.write('%2.4f \t Pr\n' % Pr)
     f.write('%2.4f \t Re\n' % Re)
@@ -260,7 +260,7 @@ print('Dataset: ' + path)
 print('N: %d' % N)
 print('scale: %2.4f' % scale)
 print('mem: %2.4f' % mem)
-print('exp: %d' % sigmoid_exponent)
+print('exp: %2.4f' % sigmoid_exponent)
 print('th: %2.4f' % th_max)
 print('Pr: %2.4f' % Pr)
 print('Re: %2.4f' % Re)

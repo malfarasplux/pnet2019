@@ -12,10 +12,10 @@ std = False
 numpy_load = True
 
 ## ESN parameters
-N_def = 100         # Neurons
-scale_def = 0.500   # scaling
-mem_def = 0.500     # memory
-exponent_def = 1    # sigmoid exponent
+N_def = 200         # Neurons
+scale_def = 1.00      # scaling
+mem_def = 0.25      # memory
+exponent_def = 0.1    # sigmoid exponent
 
 # Script name struct for report
 script_name = 'ESNtrain_mm'
@@ -172,6 +172,7 @@ with open(output_file, 'w') as f:
     f.write('%d \t exp\n' % sigmoid_exponent)
     f.write('{:1.3f} \t scale \n'.format(scale))
     f.write('{:1.3f} \t mem \n'.format(mem))
+
     
 print(user)
 print(dir_path)
@@ -179,6 +180,6 @@ print(__file__)
 print(time.strftime("%Y-%m-%d %H:%M"))
 print('Dataset: ' + path)
 print('N: {:03d}'.format(N))
-print('exp: %d' % sigmoid_exponent)
+print('exp: {:1.3f}'.format(sigmoid_exponent))
 print('scale: {:1.3f}'.format(scale))
 print('mem: {:1.3f}'.format(mem))
