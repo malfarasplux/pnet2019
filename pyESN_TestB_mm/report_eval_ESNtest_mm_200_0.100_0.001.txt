@@ -1,15 +1,15 @@
 omen@Linux-4.8.0-53-generic-x86_64-with-debian-stretch-sid
 /mnt/sda1/github/pnet2019/pyESN_TestB_mm
 eval_pyESN_Test_mm.py
-2019-07-29 12:33
+2019-07-30 12:02
 Test Dataset: ../training_setB/
 200 	 N 
 0.100 	 scale 
 0.001 	 mem 
-0 	 exp
-0.0625 	 th
-0.0533 	 Pr
-0.4360 	 Re
-0.0949 	 F1
-0.8824 	 ACC
+0.100 	 exp
+0.0814 	 th
+0.0566 	 Pr
+0.3356 	 Re
+0.0969 	 F1
+0.9115 	 ACC
 0.7770 	 AUC

@@ -11,9 +11,9 @@ mm = True
 std = False
 numpy_load = True
 multi_files = True
-th_max = 0.0625 
-th_min = -0.1864
-th_scale = 124.4829
+th_max = 0.0814 
+th_min = -0.1647
+th_scale = 1.6299
 
 
 ## ESN parameters

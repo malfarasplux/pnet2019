@@ -14,8 +14,8 @@ numpy_load = True
 
 ## ESN parameters
 N_def = 200         # Neurons
-scale_def = 0.100      # scaling
-mem_def = 0.001      # memory
+scale_def = 1.00      # scaling
+mem_def = 0.25      # memory
 exponent_def = 0.1    # sigmoid exponent
 
 # Script name struct for report
@@ -289,7 +289,7 @@ with open(output_file, 'w') as f:
     f.write('{:03d} \t N \n'.format(N))
     f.write('{:1.3f} \t scale \n'.format(scale))
     f.write('{:1.3f} \t mem \n'.format(mem))
-    f.write('%d \t exp\n' % sigmoid_exponent)
+    f.write('%1.3f \t exp\n' % sigmoid_exponent)
     f.write('(%2.4f, %2.4f, %2.4f) \t th_i, th_f, *th_sc\n' % (th_i, th_f, th_f-th_i))
     f.write('%2.4f \t th\n' % th_max)
     f.write('%2.4f \t Pr\n' % Pr)
@@ -306,7 +306,7 @@ print('Dataset: ' + path)
 print('N: {:03d}'.format(N))
 print('scale: {:1.3f}'.format(scale))
 print('mem: {:1.3f}'.format(mem))
-print('exp: %d' % sigmoid_exponent)
+print('exp: %1.3f' % sigmoid_exponent)
 print('th_i, th_f, *th_sc: (%2.4f, %2.4f, %2.4f)' % (th_i, th_f, th_f-th_i))
 print('th: %2.4f' % th_max)
 print('Pr: %2.4f' % Pr)
