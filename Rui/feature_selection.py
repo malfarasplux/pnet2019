@@ -20,6 +20,10 @@ from sklearn.feature_selection import chi2
 import matplotlib.pylab as plt
 
 
+'''
+Load the dataset. The part in the comments can be used to select features based on the variance 
+(check the sklearn site for more information). The results were not satisfactory.
+'''
 dataset = np.load("Datasets/dataset_A_normal_subs_sepsis_late.npy")
 # variance = .9
 # sel = VarianceThreshold(threshold=(variance * (1 - variance)))
@@ -32,6 +36,23 @@ y = dataset[:, -3]
 
 
 def compute_correlations(dataset):
+    '''
+	Function to calculate the correlation between every pair of features in dataset.
+	It returns a 2D array to check those correlations (can be shown using imshow).
+	It can also be used to check the correlation between each feature and the labels 
+	if you only pay atention to the correct column/line of the matrix.
+	
+	:params:
+	    dataset: (numpy.array)
+		    dataset containing whatever features you want to compare. The features 
+			should be in the columns, while the lines correspond to different samples.
+			(You can just pass the whole dataset (with labels and all) as input.
+	
+	:return:
+	    correlations_final: (numpy.array)
+		    The matrix containing the pearson correlation values of pairs of columns 
+			of dataset.
+	'''
     correlations_final = []
     for i, feature in enumerate(dataset.T):
         print(i)
@@ -39,24 +60,57 @@ def compute_correlations(dataset):
         for other_feature in dataset.T:
             correlations.append(pearsonr(feature, other_feature)[0])
         correlations_final.append(correlations)
-    return correlations_final
+    return np.array(correlations_final)
 
 
-def compute_correlations_to_target(dataset):
+def compute_correlations_to_target(feature_matrix, target):
+    '''
+	Function to calculate the correlation between the features and the target.
+	It returns a 1D array to check those correlations.
+	
+	:params:
+	    feature_matrix: (numpy.array)
+		    dataset containing whatever features you want to compare. The features 
+			should be in the columns, while the lines correspond to different samples.
+	
+	:return:
+	    correlations_final: (numpy.array)
+		    The array containing the pearson correlation values of columns and target.
+	'''
     correlations_final = []
-    for i, feature in enumerate(dataset.T):
-        correlations = pearsonr(feature, dataset[:, -3])[0]
+    for i, feature in enumerate(feature_matrix.T):
+        correlations = pearsonr(feature, target)[0]
         correlations_final.append(correlations)
-    return correlations_final
-# scaler = MinMaxScaler(feature_range=(0, 1))
-# scaler = scaler.fit(X)
-# X = scaler.transform(X)
+    return numpy.array(correlations_final)
 
 
-def forward_selection(dataset, X, y):
+def forward_selection(patient_id, X, y):
+    '''
+	Function for feature selection (it takes a long time to run). It performs classification for each feature.
+	Then, keeps the best performing feature (based on the f1 score) and reruns appending each of the remaining features.
+	Then keeps the best performing set of features and does this iteratively until it runs out of features.
+	
+	The function returns the set of indexes of the features in order of "quality". So, if you want to use the best 5 features, 
+	you just need to use indexes, results = forward_selection(patient_id, features, labels); chosen_indexes = indexes[:5].
+	
+	:params:
+	    patient_id: (numpy.array)
+		    Patient ID to use in the GroupShuffleSplit method.
+		X: (numpy.array)
+		    Feature matrix.
+	    y: (numpy.array)
+		    Target of classification.
+			
+	:returns:
+	    indexes: (numpy.array)
+		    Indexes of the features in order of quality (in a cummulative fashion).
+		all_feature_results: (list)
+		    Results of F1-Score for the set of features. 
+			The results of all_feature_results[2] correspond to the results of features[indexes[:1]] + each of the remaining features.
+	'''
+    
     model = GroupShuffleSplit(1)
-    np.array(list(model.split(X, y, dataset[:, -1])))
-    index_train, index_test = np.array(list(model.split(X, y, dataset[:, -1])))[0]
+    index_train, index_test = np.array(list(model.split(X, y, patient_id)))[0]
 
     indexes = [16]
     all_feature_results = []
@@ -74,18 +128,18 @@ def forward_selection(dataset, X, y):
                     X_test, y_test = feature[index_test], y[index_test]
                     print(X_train.shape)
 
-                    elf = VotingClassifier(estimators=[('RF', RandomForestClassifier(n_estimators=10)),
-                                                        ('ETC', ExtraTreesClassifier(n_estimators=10)),
-                                                        ('GBC', GradientBoostingClassifier(n_estimators=10)), ('GB', GaussianNB()),
-                                                        ('DT', DecisionTreeClassifier())
-                                                        ], n_jobs=-1, voting='hard')
+                    # elf = VotingClassifier(estimators=[('RF', RandomForestClassifier(n_estimators=10)),
+                    #                                     ('ETC', ExtraTreesClassifier(n_estimators=10)),
+                    #                                     ('GBC', GradientBoostingClassifier(n_estimators=10)), ('GB', GaussianNB()),
+                    #                                     ('DT', DecisionTreeClassifier())
+                    #                                     ], n_jobs=-1, voting='hard')
 
                     # elf = GaussianNB()
                     # elf = OneClassSVM(gamma='auto')
                     # elf = RandomForestClassifier(n_estimators=20)
                     # elf = AdaBoostClassifier(base_estimator=GaussianNB(), n_estimators=1000)
                     # elf = ExtraTreesClassifier(n_estimators=20)
-                    # elf = GradientBoostingClassifier(n_estimators=20)
+                    elf = GradientBoostingClassifier(n_estimators=20)
                     # elf = MLPClassifier()
 
                     # n_estimators = 10
@@ -107,10 +161,11 @@ def forward_selection(dataset, X, y):
         if len(features_results) > 0:
             indexes.append(features_results.index(np.max(features_results)))
             all_feature_results.append(features_results)
-    return indexes, all_feature_results
+    return np.array(indexes), all_feature_results
 
 
 def backward_elimination(dataset, X, y):
+    # TODO: This is not working!
     model = GroupShuffleSplit(1)
     index_train, index_test = np.array(list(model.split(X, y, dataset[:, -1])))[0]
 

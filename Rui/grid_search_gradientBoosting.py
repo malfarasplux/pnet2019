@@ -28,10 +28,10 @@ parameters_ = {
     "n_estimators": [10]
     }
 
-features = np.nan_to_num(np.load('Datasets/training_setA_nanfill_mm .npy'))
+features = np.nan_to_num(np.load('Datasets/training_setA_nanfill_mm.npy'))
 labels = np.load('Datasets/training_setA_Y.npy')
 
-clf = GridSearchCV(GradientBoostingClassifier(), parameters, cv=10, n_jobs=-1, verbose=2, scoring=f1_score)
+clf = GridSearchCV(GradientBoostingClassifier(), parameters, cv=10, n_jobs=-1, verbose=2, scoring="f1")
 
 print("Begin training...")
 clf = clf.fit(features, labels)
