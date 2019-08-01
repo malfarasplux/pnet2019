@@ -179,32 +179,13 @@ def backward_elimination(dataset, X, y):
 
             for j, feature in enumerate(X.T):
                 feature = np.vstack(np.vstack(new_X[:, np.delete(indexes, [j])]))
-                # feature = feature.reshape(-1, 2)
                 X_train, y_train = feature[index_train], y[index_train]
                 X_test, y_test = feature[index_test], y[index_test]
                 print(X_train.shape)
                 print(X_train)
 
-                # elf = VotingClassifier(estimators=[('RF', RandomForestClassifier(n_estimators=10)),
-                #                                    ('ETC', ExtraTreesClassifier(n_estimators=10)),
-                #                                    ('GBC', GradientBoostingClassifier(n_estimators=10)),
-                #                                    ('GB', GaussianNB()),
-                #                                    ('DT', DecisionTreeClassifier())
-                #                                    ], n_jobs=-1, voting='hard')
+                elf = GradientBoostingClassifier(n_estimators=20)
 
-                # elf = GaussianNB()
-                # elf = OneClassSVM(gamma='auto')
-                elf = RandomForestClassifier(n_estimators=20)
-                # elf = AdaBoostClassifier(base_estimator=GaussianNB(), n_estimators=1000)
-                # elf = ExtraTreesClassifier(n_estimators=20)
-                # elf = GradientBoostingClassifier(n_estimators=20)
-                # elf = MLPClassifier()
-
-                # n_estimators = 10
-                # elf = OneVsRestClassifier(
-                #     BaggingClassifier(SVC(kernel='linear', probability=True,
-                #     class_weight={0: 100, 1: .1}), max_samples=1.0 / n_estimators,
-                #     n_estimators=n_estimators, n_jobs=-1))
                 print("Start training...")
 
                 elf = elf.fit(X_train, y_train)
