@@ -22,9 +22,10 @@ def send_to_drive():
 	try:
         g_login = GoogleAuth()
         g_login.LocalWebserverAuth()
+		drive = GoogleDrive(g_login)
 		with open(r"D:\Physionet Challenge\GitHub\pnet2019\Rui\grid_search_object.p","r") as file:
             file_drive = drive.CreateFile({'grid_search_object.p':os.path.basename(file.name) })
-            file_drive.SetContentString(file.read())
+            file_drive.SetContentFile(file.read())
             file_drive.Upload()
 		print("Drive Worked!")
 	except:
@@ -35,7 +36,7 @@ time_sleep = 3600 * 2
 while "grid_search_object.p" not in os.listdir(r"D:\Physionet Challenge\GitHub\pnet2019\Rui"):
     time.sleep(time_sleep)
 
-# git_push()
+git_push()
 send_to_drive()
 
 print("It's all over!")
