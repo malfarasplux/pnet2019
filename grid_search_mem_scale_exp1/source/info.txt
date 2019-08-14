@@ -1,0 +1,9 @@
+Exp1
+Comes from /pnet2019/pyESN_TrainCV_mm/source
+Tries to focus on mem scale
+Attempt to use interpolate
+Attempt to launch from GCloud VM
+Added nanfix
+Tried to load from npy already applied
+nanfill npy load is hardcoded
+
