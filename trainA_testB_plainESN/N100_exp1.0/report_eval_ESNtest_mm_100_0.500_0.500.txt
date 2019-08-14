@@ -1,0 +1,15 @@
+omen@Linux-4.8.0-53-generic-x86_64-with-debian-stretch-sid
+/mnt/sda1/github/pnet2019/trainA_testB_plainESN
+eval_pyESN_Test_mm.py
+2019-08-14 17:09
+Test Dataset: ../training_setB/
+100 	 N 
+0.500 	 scale 
+0.500 	 mem 
+1.000 	 exp
+0.0737 	 th
+0.1504 	 Pr
+0.2739 	 Re
+0.1942 	 F1
+0.9678 	 ACC
+0.8006 	 AUC
