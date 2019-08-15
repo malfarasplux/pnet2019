@@ -1,0 +1,16 @@
+da820ff334c5@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
+/github/pnet2019/grid_search_mem_scale_exp1
+./ESNtrainCV.py
+2019-08-14 11:50
+Dataset: ../training/
+200 	 N 
+0.100 	 scale 
+0.400 	 mem 
+1.000 	 exp
+(-0.1617, 0.3305, 0.4923) 	 th_i, th_f, *th_sc
+0.0795 	 th
+0.1634 	 Pr
+0.3012 	 Re
+0.2119 	 F1
+0.9597 	 ACC
+0.8518 	 AUC
