@@ -1,16 +1,16 @@
 c2ca5f696f20@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
 /physionet2019/grid_search_mem_scale
 ./ESNtrainCV.py
-2019-08-14 21:24
+2019-08-14 15:52
 Dataset: ../training/
 200 	 N 
-0.800 	 scale 
-0.500 	 mem 
+0.500 	 scale 
+0.100 	 mem 
 0.500 	 exp
-(-0.1231, 0.3180, 0.4411) 	 th_i, th_f, *th_sc
-0.0807 	 th
-0.1561 	 Pr
-0.2912 	 Re
-0.2032 	 F1
+(-0.1306, 0.3470, 0.4775) 	 th_i, th_f, *th_sc
+0.0800 	 th
+0.1538 	 Pr
+0.2857 	 Re
+0.2000 	 F1
 0.9589 	 ACC
-0.8468 	 AUC
+0.8447 	 AUC
