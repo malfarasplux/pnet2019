@@ -245,9 +245,17 @@ func = ESNtools.sigmoid
 M = 2*np.random.rand(np.shape(feature_matrix)[1],N)-1
 Mb = 2*np.random.rand(1,N)-1
 
-## Perform ESN feed
+## Perform ESN feedl
+pat_shift = np.append(np.where(np.diff(patient)!=0)[0] + 1, [len(patient)])
+pat_ipos = 0
 print('ESN: ')
-ESN = ESNtools.feedESN(feature_matrix, N, M, Mb, scale, mem, func, sigmoid_exponent)
+for i in range(len(pat_shift)):
+    if i == 0:
+        ESN = ESNtools.feedESN(feature_matrix[pat_ipos:pat_shift[i]], N, M, Mb, scale, mem, func, sigmoid_exponent)
+    else:
+        ESN = np.vstack((ESN, ESNtools.feedESN(feature_matrix[pat_ipos:pat_shift[i]], N, M, Mb, scale, mem, func, sigmoid_exponent)))
+    pat_ipos = pat_shift[i]
+    
 del feature_matrix
 
 ## Divide in sets
