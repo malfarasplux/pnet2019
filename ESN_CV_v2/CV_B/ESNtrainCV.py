@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 ## Config
-dataset = "training_AB"
+dataset = "training_setB"
 path = "../" + dataset +"/"
 kfold_split = 10
 nan_to_neg = True
@@ -185,10 +185,8 @@ else:
     
     npyfilename = "../npy/" + dataset + "_patient.npy"
     patient = np.load(npyfilename)
-    print(npyfilename, " loaded")
     npyfilename = "../npy/" + dataset + "_Y.npy"
     sepsis_label = np.load(npyfilename)
-    print(npyfilename, " loaded")
 
 #ADD nanfill tag
     if nanfill:
@@ -209,8 +207,6 @@ else:
     dataloaded = True
     feature_matrix = np.load(npyfilename)
 
-##Flatten patient
-patient = patient.flatten()
 
 ## Separate pointers
 feature_phys = feature_matrix[:,:-6]    ## Physiology
@@ -252,16 +248,15 @@ Mb = 2*np.random.rand(1,N)-1
 ## Perform ESN feed
 pat_shift = np.append(np.where(np.diff(patient)!=0)[0] + 1, [len(patient)])
 pat_ipos = 0
-print("pat_shift: ",len(pat_shift))
 
 allocateESN = True
 print('ESN: ')
-if allocateESN: 
+if allocateESN:
     ESN = np.ones((len(feature_matrix),N+1), dtype = np.float)    
     for i in range(len(pat_shift)):
         ESN[pat_ipos:pat_shift[i],:] = ESNtools.feedESN(feature_matrix[pat_ipos:pat_shift[i]], N, M, Mb, scale, mem, func, sigmoid_exponent)
         pat_ipos = pat_shift[i]
-            
+    
 else:
     for i in range(len(pat_shift)):
         if i == 0:
