@@ -1,4 +1,6 @@
 #Copied from ESNtools_v2
+Aug 17 Performing an AB CV grid_search
+patient had to be flatten
 ESNpp: ESN per patient
 
 Attempt to implement an ESN that fills up for every new patient

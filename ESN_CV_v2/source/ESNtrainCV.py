@@ -15,8 +15,8 @@ nanfill = False
 
 ## ESN parameters
 N_def = 100           # Neurons
-scale_def = 1.0     # scaling
-mem_def = 1.0         # memory
+scale_def = 0.50      # scaling
+mem_def = 0.50        # memory
 exponent_def = 1.0    # sigmoid exponent
 
 # Script name struct for report
