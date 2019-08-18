@@ -24,6 +24,7 @@ https://physionet.org/users/shared/challenge-2019/
 https://physionet.org/challenge/2019/leaderboard/
 
 ##  5. TODO <a name="todo"></a>
+-  <mark>Checks (nanfill flag, new get_sepsis, comment get_sepsis before import platform))</mark>
 -  <mark>Implement Custom StratifiedKFold (test needed)</mark>  
 -  <mark>Assess sigmoid bias effect</mark>
 -  <mark>Perform grid-search param optimization (N, scale, mem, exp)</mark>
