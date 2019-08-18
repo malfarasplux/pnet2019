@@ -3,6 +3,7 @@
 import numpy as np
 
 def get_sepsis_score(data, model):
+    #TODO minmax single rows make no sense
     from sklearn.preprocessing import MinMaxScaler
     feature_matrix = data
     scaler = MinMaxScaler()
@@ -42,15 +43,25 @@ def get_sepsis_score(data, model):
     
     
     ## Compute class prediction
-    Y_pred = (np.matmul(ESN,w))
-    
-    scores = (Y_pred - th_min) / th_scale
-    labels = np.asarray(Y_pred > th_max, dtype = np.int)
-    scores[np.where(scores > 1.0)[0]]=1.0
-    scores[np.where(scores < 0.0)[0]]=0.0
-    print(scores)
-    print(np.shape(scores))
-    return scores[-1], labels[-1]
+    single_sample = True
+    if single_sample:
+	Y_pred = (np.matmul(ESN[-1,:],w))
+        scores = (Y_pred - th_min) / th_scale
+        labels = np.asarray(Y_pred > th_max, dtype = np.int)
+        scores[np.where(scores > 1.0)[0]]=1.0
+        scores[np.where(scores < 0.0)[0]]=0.0
+        print(scores)
+        print(np.shape(scores))
+
+    else:
+    	Y_pred = (np.matmul(ESN,w))
+    	scores = (Y_pred - th_min) / th_scale
+    	labels = np.asarray(Y_pred > th_max, dtype = np.int)
+    	scores[np.where(scores > 1.0)[0]]=1.0
+    	scores[np.where(scores < 0.0)[0]]=0.0
+    	print(scores)
+    	print(np.shape(scores))
+    return scores, labels
 
 def load_sepsis_model():
     import scipy.linalg as linalg
