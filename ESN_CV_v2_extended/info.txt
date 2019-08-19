@@ -1,0 +1,13 @@
+#Copied from ESNtools_v2
+Aug 17 Performing an AB CV grid_search
+patient had to be flatten
+ESNpp: ESN per patient
+
+Attempt to implement an ESN that fills up for every new patient
+(iteratively)
+(1) Allocate full ESN: Local (Train, Test*)
+(2) Not allocate full ESN: Physionet official Test --> last current line makes the prediction
+
+ESNtools remain the same
+ESNtrain and test must change
+Need to place CV changes in Train and Test versions
