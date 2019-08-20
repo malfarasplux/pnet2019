@@ -58,17 +58,18 @@ def nan_interpolate(feats):
         nanid += 1
 
 
-dataset = np.load('./Datasets/training_setA.npy')
-patients = np.load('./Datasets/training_setA_patient.npy')
+def test_interpolation():
+    dataset = np.load('./Datasets/training_setA.npy')
+    patients = np.load('./Datasets/training_setA_patient.npy')
 
-for id in np.unique(patients):
-    patients_features = dataset[np.where(patients == id)[0]]
-    for h, hour in enumerate(patients_features):
-        features = patients_features[:h]
-        for f in range(features.shape[1]):
-            if h > 1:
-                if np.sum(np.isnan(features[:, f])) < len(features[:, f]):
-                    nan_bounds(features[:, f])
-                    nan_interpolate(features[:, f])
-                else:
-                    features[:, f] = np.nan_to_num(features[:, f], -1)
+    for id in np.unique(patients):
+        patients_features = dataset[np.where(patients == id)[0]]
+        for h, hour in enumerate(patients_features):
+            features = patients_features[:h]
+            for f in range(features.shape[1]):
+                if h > 1:
+                    if np.sum(np.isnan(features[:, f])) < len(features[:, f]):
+                        nan_bounds(features[:, f])
+                        nan_interpolate(features[:, f])
+                    else:
+                        features[:, f] = np.nan_to_num(features[:, f], -1)

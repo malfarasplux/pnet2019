@@ -37,22 +37,22 @@ y = dataset[:, -3]
 
 def compute_correlations(dataset):
     '''
-	Function to calculate the correlation between every pair of features in dataset.
-	It returns a 2D array to check those correlations (can be shown using imshow).
-	It can also be used to check the correlation between each feature and the labels 
-	if you only pay atention to the correct column/line of the matrix.
-	
-	:params:
-	    dataset: (numpy.array)
-		    dataset containing whatever features you want to compare. The features 
-			should be in the columns, while the lines correspond to different samples.
-			(You can just pass the whole dataset (with labels and all) as input.
-	
-	:return:
-	    correlations_final: (numpy.array)
-		    The matrix containing the pearson correlation values of pairs of columns 
-			of dataset.
-	'''
+    Function to calculate the correlation between every pair of features in dataset.
+    It returns a 2D array to check those correlations (can be shown using imshow).
+    It can also be used to check the correlation between each feature and the labels 
+    if you only pay atention to the correct column/line of the matrix.
+    
+    :params:
+        dataset: (numpy.array)
+            dataset containing whatever features you want to compare. The features 
+            should be in the columns, while the lines correspond to different samples.
+            (You can just pass the whole dataset (with labels and all) as input.
+    
+    :return:
+        correlations_final: (numpy.array)
+            The matrix containing the pearson correlation values of pairs of columns 
+            of dataset.
+    '''
     correlations_final = []
     for i, feature in enumerate(dataset.T):
         print(i)
@@ -65,49 +65,49 @@ def compute_correlations(dataset):
 
 def compute_correlations_to_target(feature_matrix, target):
     '''
-	Function to calculate the correlation between the features and the target.
-	It returns a 1D array to check those correlations.
-	
-	:params:
-	    feature_matrix: (numpy.array)
-		    dataset containing whatever features you want to compare. The features 
-			should be in the columns, while the lines correspond to different samples.
-	
-	:return:
-	    correlations_final: (numpy.array)
-		    The array containing the pearson correlation values of columns and target.
-	'''
+    Function to calculate the correlation between the features and the target.
+    It returns a 1D array to check those correlations.
+    
+    :params:
+        feature_matrix: (numpy.array)
+            dataset containing whatever features you want to compare. The features 
+            should be in the columns, while the lines correspond to different samples.
+    
+    :return:
+        correlations_final: (numpy.array)
+            The array containing the pearson correlation values of columns and target.
+    '''
     correlations_final = []
     for i, feature in enumerate(feature_matrix.T):
         correlations = pearsonr(feature, target)[0]
         correlations_final.append(correlations)
-    return numpy.array(correlations_final)
+    return np.array(correlations_final)
 
 
 def forward_selection(patient_id, X, y):
     '''
-	Function for feature selection (it takes a long time to run). It performs classification for each feature.
-	Then, keeps the best performing feature (based on the f1 score) and reruns appending each of the remaining features.
-	Then keeps the best performing set of features and does this iteratively until it runs out of features.
-	
-	The function returns the set of indexes of the features in order of "quality". So, if you want to use the best 5 features, 
-	you just need to use indexes, results = forward_selection(patient_id, features, labels); chosen_indexes = indexes[:5].
-	
-	:params:
-	    patient_id: (numpy.array)
-		    Patient ID to use in the GroupShuffleSplit method.
-		X: (numpy.array)
-		    Feature matrix.
-	    y: (numpy.array)
-		    Target of classification.
-			
-	:returns:
-	    indexes: (numpy.array)
-		    Indexes of the features in order of quality (in a cummulative fashion).
-		all_feature_results: (list)
-		    Results of F1-Score for the set of features. 
-			The results of all_feature_results[2] correspond to the results of features[indexes[:1]] + each of the remaining features.
-	'''
+    Function for feature selection (it takes a long time to run). It performs classification for each feature.
+    Then, keeps the best performing feature (based on the f1 score) and reruns appending each of the remaining features.
+    Then keeps the best performing set of features and does this iteratively until it runs out of features.
+    
+    The function returns the set of indexes of the features in order of "quality". So, if you want to use the best 5 features, 
+    you just need to use indexes, results = forward_selection(patient_id, features, labels); chosen_indexes = indexes[:5].
+    
+    :params:
+        patient_id: (numpy.array)
+            Patient ID to use in the GroupShuffleSplit method.
+        X: (numpy.array)
+            Feature matrix.
+        y: (numpy.array)
+            Target of classification.
+            
+    :returns:
+        indexes: (numpy.array)
+            Indexes of the features in order of quality (in a cummulative fashion).
+        all_feature_results: (list)
+            Results of F1-Score for the set of features. 
+            The results of all_feature_results[2] correspond to the results of features[indexes[:1]] + each of the remaining features.
+    '''
     
     model = GroupShuffleSplit(1)
     index_train, index_test = np.array(list(model.split(X, y, patient_id)))[0]
@@ -130,7 +130,8 @@ def forward_selection(patient_id, X, y):
 
                     # elf = VotingClassifier(estimators=[('RF', RandomForestClassifier(n_estimators=10)),
                     #                                     ('ETC', ExtraTreesClassifier(n_estimators=10)),
-                    #                                     ('GBC', GradientBoostingClassifier(n_estimators=10)), ('GB', GaussianNB()),
+                    #                                     ('GBC', GradientBoostingClassifier(n_estimators=10)),
+                    #                                     ('GB', GaussianNB()),
                     #                                     ('DT', DecisionTreeClassifier())
                     #                                     ], n_jobs=-1, voting='hard')
 

@@ -40,40 +40,40 @@ def generate_new_dataset(path, name='new_dataset_AB.npy'):
 
 def GroupStratifiedKFold(dataset, n_split=10):
     '''
-	Split the data in Stratified K folds considering the groups.
-	Namely, the same group can not appear in the training and testing set at the same time (iteration).
-	Note: This function only works with binary tasks.
-	
-	:params:
-	    dataset: (numpy.array)
-		    The dataset to split in train and test sets. It is expected to have the format of: features, 
-			labels per sample, labels per patient, patient ID.
-	    n_split: (int)
-			The number of folds to use in cross validation.
-	
-	:returns:
-	    train_indexes: (numpy.array)
-		    Indexes of the trainning samples in order.
-			It should be iterated such as: X_train, y_train = X[train_indexes[i]], y[train_indexes[i]]
-		test_indexes: (numpy.array)
-		    Indexes of the trainning samples in order.
-			It should be iterated such as: X_test, y_test = X[test_indexes[i]], y[test_indexes[i]]
-			
-		Note that the iteration of train_indexes[i] and test_indexes[i] should always be the same!
-		
-	:Example:
-		
-		...
-		
-		train_index, test_index = GroupStratifiedKFold(np.hstack([features, labels.reshape(-1,1), labels_patient, patient_id]), 10)
-    
-		for j in range(len(train_index)):
-			print("TRAIN:", train_index[j], "TEST:", test_index[j])
-			X_train, X_test = X[train_index[j]], X[test_index[j]]
-			y_train, y_test = y[train_index[j]], y[test_index[j]]
-			
-			...
-	'''
+    Split the data in Stratified K folds considering the groups.
+    Namely, the same group can not appear in the training and testing set at the same time (iteration).
+    Note: This function only works with binary tasks.
+
+    :params:
+        dataset: (numpy.array)
+            The dataset to split in train and test sets. It is expected to have the format of: features,
+            labels per sample, labels per patient, patient ID.
+        n_split: (int)
+            The number of folds to use in cross validation.
+
+    :returns:
+        train_indexes: (numpy.array)
+            Indexes of the trainning samples in order.
+            It should be iterated such as: X_train, y_train = X[train_indexes[i]], y[train_indexes[i]]
+        test_indexes: (numpy.array)
+            Indexes of the trainning samples in order.
+            It should be iterated such as: X_test, y_test = X[test_indexes[i]], y[test_indexes[i]]
+
+        Note that the iteration of train_indexes[i] and test_indexes[i] should always be the same!
+
+    :Example:
+
+        ...
+
+        train_index, test_index = GroupStratifiedKFold(np.hstack([features, labels.reshape(-1,1), labels_patient, patient_id]), 10)
+
+        for j in range(len(train_index)):
+            print("TRAIN:", train_index[j], "TEST:", test_index[j])
+            X_train, X_test = X[train_index[j]], X[test_index[j]]
+            y_train, y_test = y[train_index[j]], y[test_index[j]]
+
+            ...
+    '''
     old_id = 0
     patient = []
     patients_healthy_ind = []
@@ -138,5 +138,6 @@ def GroupStratifiedKFold(dataset, n_split=10):
 
 
 # generate_new_dataset(path, 'new_dataset_B.npy')
-# dataset = np.load('new_dataset.npy')
+# dataset = np.load('D:\Physionet Challenge\GitHub\pnet2019\Rui\Datasets\dataset_A_mean_subs.npy')
 # train_indexes, test_indexes = GroupStratifiedKFold(dataset, 10)
+

@@ -89,7 +89,6 @@ def feedESN(features, neurons, scale, mem, func, f_arg, seed=42, silent=False):
 
     f_arg : (float) function parameter. sigmoid exponent or slope in rect
     """
-    # TODO: Include mask and mask_bias, input_seed
     np.random.seed = seed
     mask = 2*np.random.rand(np.shape(features)[1], neurons)-1
     mask_bias = 2*np.random.rand(1, neurons)-1

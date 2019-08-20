@@ -18,22 +18,22 @@ from scipy.stats import pearsonr
 
 def replace_nan_by_value(data, value=None):
     '''
-	Function to replace the NaNs in data for numerical values. Data should have 3 dimensions instead of 2.
-	The first is patient, so, patient = data[i]. The second is the sample, so, sample = patient[j].
-	The third is feature_value, so, feature_value = sample[n].
-	
-	:params:
-	    data: (list) or (numpy.array)
-		    Dataset as described above.
-		value: (str) or None
-		    The value to substitute. If value is 'mean', nan are replaced by the mean value of the column of each patient.
-			If value is 'normal', nan are replaced by a random value with a normal distribution with the mean value of 
-			the column of the patient and variance of the same column. Else, nan are replaced by 0.
-	
-	:return:
-	    data_copy: (numpy.array) or (list)
-		    Copy of input data with replaced nan.
-	'''
+    Function to replace the NaNs in data for numerical values. Data should have 3 dimensions instead of 2.
+    The first is patient, so, patient = data[i]. The second is the sample, so, sample = patient[j].
+    The third is feature_value, so, feature_value = sample[n].
+    
+    :params:
+        data: (list) or (numpy.array)
+            Dataset as described above.
+        value: (str) or None
+            The value to substitute. If value is 'mean', nan are replaced by the mean value of the column of each patient.
+            If value is 'normal', nan are replaced by a random value with a normal distribution with the mean value of 
+            the column of the patient and variance of the same column. Else, nan are replaced by 0.
+    
+    :return:
+        data_copy: (numpy.array) or (list)
+            Copy of input data with replaced nan.
+    '''
     data_copy = data.copy()
     if value not in ['mean', 'normal']:
         for n, patient in enumerate(data):
@@ -55,23 +55,23 @@ def replace_nan_by_value(data, value=None):
 
 
 def late_onset_sepsis(dataset, hours_to_onset=6):
-	'''
-	Function to change the labels of the dataset. The dataset is expected to be in the form of: features,
-	labels per sample, labels per patient, patient ID. The labels are delayed for each patient by "hours_to_onset".
-	
-	:params:
-	    dataset: (numpy.array)
-		    Dataset in the form described above.
-		hours_to_onset: (int)
-		    Hours to delay the label. For example, if the original labels are:
-			[0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-			and hours_to_onset=6, then, the result will be:
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1]
-	
-	:return:
-	    dataset: (numpy.array)
-		    Dataset containing the delayed labels where the original ones were.
-	'''
+    '''
+    Function to change the labels of the dataset. The dataset is expected to be in the form of: features,
+    labels per sample, labels per patient, patient ID. The labels are delayed for each patient by "hours_to_onset".
+
+    :params:
+        dataset: (numpy.array)
+            Dataset in the form described above.
+        hours_to_onset: (int)
+            Hours to delay the label. For example, if the original labels are:
+            [0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+            and hours_to_onset=6, then, the result will be:
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1]
+
+    :return:
+        dataset: (numpy.array)
+            Dataset containing the delayed labels where the original ones were.
+    '''
     flag = False
     i = 0
     while i in range(len(dataset[:-hours_to_onset, -3])):
@@ -91,31 +91,32 @@ def late_onset_sepsis(dataset, hours_to_onset=6):
 
 def mean_wave(segments):
     '''
-	Calculate the mean wave of segments.
-	'''
+    Calculate the mean wave of segments.
+    '''
     organized_segment = segments.copy().T
     mean_wave = [np.mean(seg) for seg in organized_segment]
 
     return np.array(mean_wave)
 
+
 def compute_distance_to_mean_wave_patient(dataset):
     '''
-	Compute the mean wave of each patient and then calculate the distance (in this case cosine_similarity) 
-	between each sample and the mean wave. You can change the used metric in the for below by uncommenting one
-	of the other lines.
-	
-	(It is only using the identified by eye best features)
-	
-	:params:
-	    dataset: (numpy.array)
-		    dataset is expected to be in the form of: features,
-			labels per sample, labels per patient, patient ID.
-			
-	:return:
-	    comparison_matrix: (list)
-		    Matrix containing the results of the comparison between each sample of each patient and the
-			corresponding mean wave.
-	'''
+    Compute the mean wave of each patient and then calculate the distance (in this case cosine_similarity) 
+    between each sample and the mean wave. You can change the used metric in the for below by uncommenting one
+    of the other lines.
+    
+    (It is only using the identified by eye best features)
+    
+    :params:
+        dataset: (numpy.array)
+            dataset is expected to be in the form of: features,
+            labels per sample, labels per patient, patient ID.
+            
+    :return:
+        comparison_matrix: (list)
+            Matrix containing the results of the comparison between each sample of each patient and the
+            corresponding mean wave.
+    '''
     comparison_matrix = []
     index = [0, 8, 14, 15, 20, 26, 27, 32, -3, -2, -1]
 
@@ -142,21 +143,21 @@ from numba import jit
 @jit()
 def compute_distance_to_mean_wave(dataset):
     '''
-	Compute the mean wave of all patients and then calculate the distance between each sample and the
-	mean wave. You can change the used metric in the for below by uncommenting one of the other lines.
-	
-	(It is only using the identified by eye best features)
+    Compute the mean wave of all patients and then calculate the distance between each sample and the
+    mean wave. You can change the used metric in the for below by uncommenting one of the other lines.
+    
+    (It is only using the identified by eye best features)
 
-	:params:
-	    dataset: (numpy.array)
-		    dataset is expected to be in the form of: features,
-			labels per sample, labels per patient, patient ID.
-			
-	:return:
-	    comparison_matrix: (list)
-		    Matrix containing the results of the comparison between each sample of each patient and the
-			corresponding mean wave.
-	'''
+    :params:
+        dataset: (numpy.array)
+            dataset is expected to be in the form of: features,
+            labels per sample, labels per patient, patient ID.
+            
+    :return:
+        comparison_matrix: (list)
+            Matrix containing the results of the comparison between each sample of each patient and the
+            corresponding mean wave.
+    '''
     index = [0, 8, 14, 15, 20, 26, 27, 32, -3, -2, -1]
     comparison_matrix = []
     # scaler = MinMaxScaler(feature_range=(0, 1))
@@ -174,20 +175,20 @@ def compute_distance_to_mean_wave(dataset):
 
 def get_patients_by_health(dataset):
     '''
-	Function to divide the patients in sepsis and healthy. This can be used to get a balanced dataset
-	in terms of healthy/unhealthy patient by using healthy_patients = healthy_patients[len((sepsis_patients)].
-	
-	:params:
-	    dataset: (numpy.array)
-		    dataset is expected to be in the form of: features,
-			labels per sample, labels per patient, patient ID.
-			
-	:return:
-	    sepsis: (numpy.array)
-		    dataset containing only the patients that present sepsis at some time.
-		healthy: (numpy.array)
-		    dataset containing only the patients that do not present sepsis at any time.
-	'''
+    Function to divide the patients in sepsis and healthy. This can be used to get a balanced dataset
+    in terms of healthy/unhealthy patient by using healthy_patients = healthy_patients[len((sepsis_patients)].
+    
+    :params:
+        dataset: (numpy.array)
+            dataset is expected to be in the form of: features,
+            labels per sample, labels per patient, patient ID.
+            
+    :return:
+        sepsis: (numpy.array)
+            dataset containing only the patients that present sepsis at some time.
+        healthy: (numpy.array)
+            dataset containing only the patients that do not present sepsis at any time.
+    '''
     healthy = []
     sepsis = []
     for patient_id in np.unique(dataset[:, -1]):
@@ -209,22 +210,22 @@ def get_patients_by_health(dataset):
 
 def block_hour(dataset, hours=4):
     '''
-	Function to build the dataset with blocks of hours of acquisition.
-	The blocks are built for each patient, so, there are no blocks consisting of various patients.
-	The number of columns of the returned dataset will be number_features * hours.
-	The number of lines will be number_lines_dataset - (num_patients * (hours - 1))
-	
-	:params:
-	    dataset: (numpy.array)
+    Function to build the dataset with blocks of hours of acquisition.
+    The blocks are built for each patient, so, there are no blocks consisting of various patients.
+    The number of columns of the returned dataset will be number_features * hours.
+    The number of lines will be number_lines_dataset - (num_patients * (hours - 1))
+    
+    :params:
+        dataset: (numpy.array)
             dataset is expected to be in the form of: features,
-			labels per sample, labels per patient, patient ID.
-	
-	:return:
-	    new_dataset: (numpy.array)
-		    The new set of features containing the blocks of hours.
-		    The labels of the newly constructed dataset are as follows:
-			A block is considered positive (1) if any hour of the block has the positive label (1).
-	'''
+            labels per sample, labels per patient, patient ID.
+    
+    :return:
+        new_dataset: (numpy.array)
+            The new set of features containing the blocks of hours.
+            The labels of the newly constructed dataset are as follows:
+            A block is considered positive (1) if any hour of the block has the positive label (1).
+    '''
     new_dataset = []
     for patient_id in np.unique(dataset[:, -1]):
         print("Patient ID: ", patient_id)

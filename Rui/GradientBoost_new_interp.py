@@ -3,15 +3,14 @@ from sklearn.ensemble import GradientBoostingClassifier
 from iterative_interpolation import *
 from GroupStratifiedKFold import GroupStratifiedKFold
 
-
-print("Loading datasets...")
+print("Loading datasets...", flush=True)
 
 dataset_interp = np.nan_to_num(np.load('./Datasets/training_setA_nanfill.npy'))
 dataset = np.load('./Datasets/training_setA.npy')
 patients_id = np.load('./Datasets/training_setA_patient.npy')
-patients_labels = np.load(r'.\Datasets\dataset_A_mean_subs.npy')[:, -2]
+labels, patients_labels = np.load('./Datasets/dataset_A_mean_subs.npy').T[-3:-1]
 
-print("Group Stratified K Fold...")
+print("Group Stratified K Fold...", flush=True)
 
 train_index, test_index = GroupStratifiedKFold(np.hstack(
     [dataset, patients_labels.reshape(-1, 1), patients_id.reshape(-1, 1)]), 10)
@@ -22,7 +21,11 @@ y_interp = dataset_interp[:, -1]
 
 acc, f1, auc, res, y_test_all = [], [], [], [], []
 
-print("Start Cross Validation...")
+patients_id_samples = []
+for id in np.unique(patients_id):
+    patients_id_samples.append(np.where(patients_id == id)[0])
+
+print("Start Cross Validation...", flush=True)
 
 for i in range(len(train_index)):
 
@@ -31,21 +34,22 @@ for i in range(len(train_index)):
     y_train, y_test = y_interp[train_index[i]], y_interp[test_index[i]]
     patients_id_train, patients_id_test = patients_id[train_index[i]], patients_id[test_index[i]]
 
-    print("Build Classifier.")
+    print("Build Classifier.", flush=True)
 
-    elf = GradientBoostingClassifier(n_estimators=20)
+    elf = GradientBoostingClassifier(n_estimators=1)
 
-    print("Start training...")
+    print("Start training...", flush=True)
 
     elf = elf.fit(X_train, y_train)
-    print("Start testing...")
+    print("Start testing...", flush=True)
 
+    aux_pred = []
+    aux_result = []
     for id in np.unique(patients_id_test):
-        patients_features = X_test[np.where(patients_id_test == id)[0]]
+        patients_features = X[patients_id_samples[id]]
         for h, hour in enumerate(patients_features):
-            features = patients_features[:h]
+            features = patients_features[:h+1]
             for f in range(features.shape[1]):
-                if h > 1:
                     if np.sum(np.isnan(features[:, f])) < len(features[:, f]):
                         nan_bounds(features[:, f])
                         nan_interpolate(features[:, f])
@@ -53,17 +57,19 @@ for i in range(len(train_index)):
                         features[:, f] = np.nan_to_num(features[:, f], -1)
             pred = elf.predict_proba(features)[:, 1]
             results = elf.predict(features)
+            aux_pred.append(pred)
+            aux_result.append(results)
 
-    print("Finished Testing.\n Next!")
-    res.append(pred)
+    print("Finished Testing.\n Next!", flush=True)
+    res.append(aux_pred)
     y_test_all.append(y_test)
-    acc.append(accuracy_score(results, y_test))
-    f1.append(f1_score(results, y_test))
-    auc.append(roc_auc_score(y_test, pred))
+    acc.append(accuracy_score(aux_result, y_test))
+    f1.append(f1_score(aux_result, y_test))
+    auc.append(roc_auc_score(y_test, aux_pred))
 
-    print("Accuracy: ", accuracy_score(results, y_test))
-    print("F1-Score: ", f1_score(results, y_test))
-    print("AUC: ", auc)
+    print("Accuracy: ", accuracy_score(aux_result, y_test), flush=True)
+    print("F1-Score: ", f1_score(aux_result, y_test), flush=True)
+    print("AUC: ", auc, flush=True)
 
 res = np.concatenate(res)
 y_test_all = np.concatenate(y_test_all)
@@ -86,7 +92,7 @@ print(accuracy_score(y_test_all, new_results))
 print(f1_score(y_test_all, new_results))
 
 new_threshold = np.array(f1_score_list).argmax() * step
-print("Threshold:", new_threshold)
+print("Threshold:", new_threshold, flush=True)
 
 new_results = np.zeros(len(res))
 new_results[np.where(res > new_threshold)[0]] = 1
@@ -94,5 +100,5 @@ new_results[np.where(res <= new_threshold)[0]] = 0
 
 acc.append(accuracy_score(y_test_all, new_results))
 f1.append(f1_score(y_test_all, new_results))
-print("Accuracy th: ", accuracy_score(y_test_all, new_results))
-print("F1-Score th: ", f1_score(y_test_all, new_results))
+print("Accuracy th: ", accuracy_score(y_test_all, new_results), flush=True)
+print("F1-Score th: ", f1_score(y_test_all, new_results), flush=True)
