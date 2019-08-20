@@ -1,0 +1,16 @@
+b8aeb1fcdae8@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
+/physionet2019/ESN_CV_v2
+./ESNtrainCV.py
+2019-08-18 18:02
+Dataset: ../training_AB/
+100 	 N 
+0.900 	 scale 
+0.200 	 mem 
+1.000 	 exp
+(-0.0605, 0.1523, 0.2128) 	 th_i, th_f, *th_sc
+0.0525 	 th
+0.0974 	 Pr
+0.2154 	 Re
+0.1342 	 F1
+0.9500 	 ACC
+0.6880 	 AUC
