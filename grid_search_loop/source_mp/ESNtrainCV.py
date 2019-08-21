@@ -304,10 +304,10 @@ if __name__ == '__main__':
 
     else:
 
-        npyfilename = "D:/Physionet Challenge/GitHub/pnet2019/Rui/Datasets/" + dataset + "_patient.npy"
+        npyfilename = "../npy/" + dataset + "_patient.npy"
         patient = np.load(npyfilename)
         print(npyfilename, " loaded")
-        npyfilename = "D:/Physionet Challenge/GitHub/pnet2019/Rui/Datasets/" + dataset + "_Y.npy"
+        npyfilename = "../npy/" + dataset + "_Y.npy"
         sepsis_label = np.load(npyfilename)
         print(npyfilename, " loaded")
 
@@ -321,7 +321,7 @@ if __name__ == '__main__':
             print(npyfilename, '(mm) to be loaded')
 
         else:
-            npyfilename = "D:/Physionet Challenge/GitHub/pnet2019/Rui/Datasets/" + dataset + ".npy"
+            npyfilename = "../npy/" + dataset + ".npy"
             print(npyfilename, '(not mm) to be loaded')
 
         n = len(np.unique(patient))
