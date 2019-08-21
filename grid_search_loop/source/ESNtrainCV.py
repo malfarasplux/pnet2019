@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 
 ## Config
+# biased_regress = True
+# normal_equations = True
 dataset = "training_1"
 path = "../" + dataset +"/"
 kfold_split = 10
-nan_to_neg = False
 nan_to_zero = True
-biased_regress = True
-normal_equations = True
 mm = False
 std = False
 numpy_load = True
@@ -21,7 +20,7 @@ mem_def = [0.001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0
 exponent_def = 1.0                                # sigmoid exponent
 
 # Script name struct for report
-script_name = 'ESNtrainCV'
+#script_name = 'ESNtrainCV'
 #name_struct_meta = "_N_scale_mem"
 #name_struct = '_{:03d}_{:1.3f}_{:1.3f}'.format(N_def, scale_def, mem_def)
 
@@ -228,7 +227,7 @@ func = ESNtools.sigmoid
 groups = patient
 train_index, test_index = GSK.GroupStratifiedKFold(np.hstack([patient_sep.reshape(-1,1), groups.reshape(-1,1)]), 10)
 
-def get_gridsearchpoint(feature_matrix, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index):
+def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index):
     script_name = 'ESNtrainCV'
     name_struct_meta = "_N_scale_mem"
     name_struct = '_{:03d}_{:1.3f}_{:1.3f}'.format(N, scale, mem)
@@ -274,15 +273,9 @@ def get_gridsearchpoint(feature_matrix, M, Mb, N, scale, mem, sigmoid_exponent, 
         y_train, y_test = y[train_index[j]], y[test_index[j]]          #GSKF
         patients_id_train, patients_id_test = patient[train_index[j]], patient[test_index[j]]
         
-        if biased_regress:
-            if normal_equations:
-                w = ESNtools.get_weights_lu_biasedNE(X_train, y_train)
-            
-                print("Start testing...", flush=True)
-    
-            Y_pred = (np.matmul(X_test,w))
-    
-    
+        w = ESNtools.get_weights_lu_biasedNE(X_train, y_train)
+        print("Start testing...", flush=True)
+        Y_pred = (np.matmul(X_test,w))
     
         print(kk, ' realisation ')
         print("auc: ", roc_auc_score(y_test, Y_pred))
@@ -340,7 +333,7 @@ def get_gridsearchpoint(feature_matrix, M, Mb, N, scale, mem, sigmoid_exponent, 
         f.write(dir_path + '\n')
         f.write(__file__ + '\n')
         f.write(time.strftime("%Y-%m-%d %H:%M") + '\n')
-        f.write('Dataset: ' + path + '\n')
+        # f.write('Dataset: ' + path + '\n')
         f.write('{:03d} \t N \n'.format(N))
         f.write('{:1.3f} \t scale \n'.format(scale))
         f.write('{:1.3f} \t mem \n'.format(mem))
