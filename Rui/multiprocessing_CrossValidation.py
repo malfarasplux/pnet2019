@@ -4,7 +4,6 @@ from iterative_interpolation import *
 from GroupStratifiedKFold import GroupStratifiedKFold
 import multiprocessing
 from ESNtools import *
-from numba import njit
 
 
 def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id, patients_id_samples, ESN, res,
