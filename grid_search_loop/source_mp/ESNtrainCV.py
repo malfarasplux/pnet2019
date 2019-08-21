@@ -304,10 +304,10 @@ if __name__ == '__main__':
 
     else:
 
-        npyfilename = "../npy/" + dataset + "_patient.npy"
+        npyfilename = "D:/Physionet Challenge/GitHub/pnet2019/Rui/Datasets/" + dataset + "_patient.npy"
         patient = np.load(npyfilename)
         print(npyfilename, " loaded")
-        npyfilename = "../npy/" + dataset + "_Y.npy"
+        npyfilename = "D:/Physionet Challenge/GitHub/pnet2019/Rui/Datasets/" + dataset + "_Y.npy"
         sepsis_label = np.load(npyfilename)
         print(npyfilename, " loaded")
 
@@ -321,7 +321,7 @@ if __name__ == '__main__':
             print(npyfilename, '(mm) to be loaded')
 
         else:
-            npyfilename = "../npy/" + dataset + ".npy"
+            npyfilename = "D:/Physionet Challenge/GitHub/pnet2019/Rui/Datasets/" + dataset + ".npy"
             print(npyfilename, '(not mm) to be loaded')
 
         n = len(np.unique(patient))
@@ -391,5 +391,5 @@ if __name__ == '__main__':
                 processes.append(p)
                 p.start()
 
-                for process in processes:
-                    process.join()
+    for process in processes:
+        process.join()
