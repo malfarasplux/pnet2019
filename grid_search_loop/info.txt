@@ -1,0 +1,26 @@
+Aug 21
+Implementation of grid_search ESN loop instead of bash calls
+In principle, using nan to zero
+Need to generate reports iteratively
+Aimed at running in 1664 VM Google cloud
+Might need to work with full paths rather than relative
+Aimed at extending grid search ranges (N, scale, mem)
+Should be capable of exploring nanfill, backwards and no-interpolation scenarios
+In principle, F1 based (possibility to remove threshold study and base CV upon AUC)
+
+/pnet2019/ESN_CV_v2_extended used as a base
+
+##############################################################################################
+#Copied from ESNtools_v2
+Aug 17 Performing an AB CV grid_search
+patient had to be flatten
+ESNpp: ESN per patient
+
+Attempt to implement an ESN that fills up for every new patient
+(iteratively)
+(1) Allocate full ESN: Local (Train, Test*)
+(2) Not allocate full ESN: Physionet official Test --> last current line makes the prediction
+
+ESNtools remain the same
+ESNtrain and test must change
+Need to place CV changes in Train and Test versions
