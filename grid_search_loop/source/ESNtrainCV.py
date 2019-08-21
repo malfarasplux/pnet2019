@@ -380,4 +380,4 @@ for i_N in range(len(N_def)):
         scale = scale_def[i_scale]   # scaling factor
         for i_mem in range(len(mem_def)):
             mem = mem_def[i_mem]       # memory
-            get_gridsearchpoint(feature_matrix, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index)
+            get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index)
