@@ -1,7 +1,10 @@
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score, precision_score, recall_score, roc_curve
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from iterative_interpolation import *
 from GroupStratifiedKFold import GroupStratifiedKFold
+
+
+backward_interpolation = False
 
 print("Loading datasets...", flush=True)
 
@@ -13,11 +16,11 @@ labels, patients_labels = np.load('./Datasets/dataset_A_mean_subs.npy').T[-3:-1]
 print("Group Stratified K Fold...", flush=True)
 
 train_index, test_index = GroupStratifiedKFold(np.hstack(
-    [dataset, patients_labels.reshape(-1, 1), patients_id.reshape(-1, 1)]), 10)
+    [dataset, labels.reshape(-1, 1), patients_labels.reshape(-1, 1), patients_id.reshape(-1, 1)]), 10)
 
 X = dataset[:, :-1]
 X_interp = dataset_interp[:, :-1]
-y_interp = dataset_interp[:, -1]
+y_interp = labels
 
 acc, f1, auc, res, y_test_all = [], [], [], [], []
 
@@ -30,13 +33,14 @@ print("Start Cross Validation...", flush=True)
 for i in range(len(train_index)):
 
     print("TRAIN:", train_index[i], "TEST:", test_index[i])
-    X_train, X_test = X_interp[train_index[i]], X[test_index[i]]
+    X_train, X_test = X_interp[train_index[i]], np.nan_to_num(X[test_index[i]])
     y_train, y_test = y_interp[train_index[i]], y_interp[test_index[i]]
     patients_id_train, patients_id_test = patients_id[train_index[i]], patients_id[test_index[i]]
 
     print("Build Classifier.", flush=True)
 
-    elf = GradientBoostingClassifier(n_estimators=1)
+    elf = GradientBoostingClassifier(n_estimators=200)
+    # elf = RandomForestClassifier(n_estimators=1, n_jobs=-1)
 
     print("Start training...", flush=True)
 
@@ -45,30 +49,34 @@ for i in range(len(train_index)):
 
     aux_pred = []
     aux_result = []
-    for id in np.unique(patients_id_test):
-        patients_features = X[patients_id_samples[id]]
-        for h, hour in enumerate(patients_features):
-            features = patients_features[:h+1]
-            for f in range(features.shape[1]):
-                    if np.sum(np.isnan(features[:, f])) < len(features[:, f]):
-                        nan_bounds(features[:, f])
-                        nan_interpolate(features[:, f])
-                    else:
-                        features[:, f] = np.nan_to_num(features[:, f], -1)
-            pred = elf.predict_proba(features)[:, 1]
-            results = elf.predict(features)
-            aux_pred.append(pred)
-            aux_result.append(results)
+    if backward_interpolation:
+        for id in np.unique(patients_id_test):
+            patients_features = X[patients_id_samples[id]]
+            for h, hour in enumerate(patients_features):
+                features = patients_features[:h+1]
+                for f in range(features.shape[1]):
+                        if np.sum(np.isnan(features[:, f])) < len(features[:, f]):
+                            nan_bounds(features[:, f])
+                            nan_interpolate(features[:, f])
+                        else:
+                            features[:, f] = np.nan_to_num(features[:, f], -1)
+                pred = elf.predict_proba(features[-1].reshape(1, -1))[:, 1]
+                results = elf.predict(features[-1].reshape(1, -1))
+                aux_pred.append(pred)
+                aux_result.append(results)
+    else:
+        pred = elf.predict_proba(X_test)[:, 1]
+        results = elf.predict(X_test)
 
     print("Finished Testing.\n Next!", flush=True)
-    res.append(aux_pred)
+    res.append(pred)
     y_test_all.append(y_test)
-    acc.append(accuracy_score(aux_result, y_test))
-    f1.append(f1_score(aux_result, y_test))
-    auc.append(roc_auc_score(y_test, aux_pred))
+    acc.append(accuracy_score(results, y_test))
+    f1.append(f1_score(results, y_test))
+    auc.append(roc_auc_score(y_test, pred))
 
-    print("Accuracy: ", accuracy_score(aux_result, y_test), flush=True)
-    print("F1-Score: ", f1_score(aux_result, y_test), flush=True)
+    print("Accuracy: ", accuracy_score(results, y_test), flush=True)
+    print("F1-Score: ", f1_score(results, y_test), flush=True)
     print("AUC: ", auc, flush=True)
 
 res = np.concatenate(res)

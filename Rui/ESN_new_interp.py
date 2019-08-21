@@ -50,8 +50,8 @@ for i in range(len(train_index)):
     print("Start testing...", flush=True)
 
     aux = []
-    for id in np.unique(patients_id_test):
-        patients_features = X[patients_id_samples[id]]
+    for id_ in np.unique(patients_id_test):
+        patients_features = X[patients_id_samples[id_]]
         for h, hour in enumerate(patients_features):
             features = patients_features[:h+1]
             for f in range(features.shape[1]):

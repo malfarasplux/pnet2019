@@ -106,7 +106,7 @@ def feedESN(features, neurons, scale, mem, func, f_arg, seed=42, silent=False):
         
         ## Connect preceding neighbour 
         p = np.copy(np.roll(ESN[i,:-1],1))
-    return ESN
+    # return ESN
 
 ### Get ESN training weights (NE: normal eq.) ############################
 def get_weights_biasedNE(ESN, target):
