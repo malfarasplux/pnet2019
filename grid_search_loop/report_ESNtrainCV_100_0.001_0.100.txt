@@ -1,8 +1,7 @@
-omen@Linux-4.8.0-53-generic-x86_64-with-debian-stretch-sid
-/mnt/sda1/github/pnet2019/grid_search_loop
-./ESNtrainCV.py
-2019-08-21 13:14
-Dataset: ../training_1/
+2c66abb86a60@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
+/github/pnet2019/grid_search_loop
+ESNtrainCV.py
+2019-08-21 15:00
 100 	 N 
 0.001 	 scale 
 0.100 	 mem 

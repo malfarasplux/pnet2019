@@ -1,0 +1,15 @@
+2c66abb86a60@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
+/github/pnet2019/grid_search_loop
+ESNtrainCV.py
+2019-08-21 15:06
+100 	 N 
+0.001 	 scale 
+1.400 	 mem 
+1.000 	 exp
+(-0.5865, 0.7073, 1.2939) 	 th_i, th_f, *th_sc
+0.0604 	 th
+0.0940 	 Pr
+0.2898 	 Re
+0.1420 	 F1
+0.9528 	 ACC
+0.7625 	 AUC
