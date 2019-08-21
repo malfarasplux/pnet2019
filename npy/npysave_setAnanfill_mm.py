@@ -160,7 +160,7 @@ if mm:
         i_pat = np.where(patient==i)[0]
         
         ## NaN fill 
-        A = feature_phys[i_pat[0]:i_pat[-1],:]
+        A = feature_phys[i_pat[0]:i_pat[-1]+1,:]
         for j in range(np.size(A,1)):
             ifeat = A[:,j]
             if np.sum(np.isnan(ifeat)) < len(ifeat):

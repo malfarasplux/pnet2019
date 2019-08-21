@@ -2,15 +2,16 @@
 # -*- coding: utf-8 -*-
 
 ## Config
-dataset = "training_setB"
+dataset = "training_setA"
 path = "../" + dataset +"/"
 nan_to_neg = False
-mm = True
+mm = False
 std = False
 numpy_save = True
+isnanfill = True
 
 # Script name struct for report
-script_name = 'npysavenanfill_mm'
+script_name = 'npysavenanfill'
 dl_ = '_'
 name_struct_meta = "_N_scale_mem"
 
@@ -177,17 +178,26 @@ elif std:
     scaler.fit(feature_phys[patient_healthy_idx,:])
     feature_phys[:,:] = scaler.transform(feature_phys[:,:])
 
+
+elif isnanfill:
+## NaN fill 
+    for i in range(n):
+        i_pat = np.where(patient==i)[0]
+        
+        ## NaN fill 
+        A = feature_phys[i_pat[0]:i_pat[-1]+1,:]
+        for j in range(np.size(A,1)):
+            ifeat = A[:,j]
+            if np.sum(np.isnan(ifeat)) < len(ifeat):
+                nan_bounds(ifeat)
+                nan_interpolate(ifeat)
+
 ## nan to negative
 if nan_to_neg:
     feature_matrix[np.isnan(feature_matrix)]=-1
     print("Changed nan to -1")
     
 if numpy_save:
-    npyfilename = '../npy/' + dataset + '_nanfill_mm.npy'
+    npyfilename = '../npy/' + dataset + '_nanfill.npy'
     np.save(npyfilename, feature_matrix)
     print(npyfilename, 'saved')
-#    np.save('../npy/' + dataset + '_patient.npy', patient)
-#    print('../npy/' + dataset + '_patient.npy', 'saved')
-#    np.save('../npy/' + dataset + '_Y.npy', sepsis_label)
-#    print('../npy/' + dataset + '_Y.npy', 'saved')
-
