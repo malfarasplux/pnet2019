@@ -68,9 +68,10 @@ def sigmoid(x, exponent):
 
 def rectifier(x, slope=1):
     """Apply a rectifier function."""
-
-    return 0 if x < 0 else slope*x
-
+    z = np.zeros(np.shape(x))
+    z[~np.less(x,0)] = slope*x[~np.less(x,0)]
+    return z
+    
 ### Feed data into Echo State Network #######################################
 def feedESN(features, neurons, mask, mask_bias, scale, mem, func, f_arg):
     """Feeds data into a ring Echo State Network. Returns ESN state.
