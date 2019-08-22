@@ -153,3 +153,25 @@ def get_weights_lu_biasedNE(ESN, target):
     Y_aux = (np.matmul(ESN.T, target))                 # Let Y=ESNt.y using matrix multiplication
     w = linalg.lu_solve(LU, Y_aux)                     # Solve Rx=y
     return w
+
+def get_weights_lupinv_biasedNE(ESN, target):
+    """Computes ESN training weights solving (lu) the NE linear system w/ bias. Pinv when it fails
+    Parameters
+    ----------
+    ESN : (np.array) Echo State Network state
+    
+    target : (np.array) target labels to train with
+    
+    """
+    try: 
+        LU = linalg.lu_factor((np.matmul(ESN.T,ESN)))      # LU decomposition with (RtR)w = RtY
+        Y_aux = (np.matmul(ESN.T, target))                 # Let Y=ESNt.y using matrix multiplication
+        w = linalg.lu_solve(LU, Y_aux)                     # Solve Rx=y
+    except:
+        Y_aux = np.matmul(ESN.T,target)
+        ESNinv = np.linalg.pinv(np.matmul(ESN.T,ESN))
+        w = np.matmul(ESNinv, Y_aux)
+         
+    return w
+
+
