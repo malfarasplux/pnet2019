@@ -1,0 +1,15 @@
+52e4503b97be@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
+/github/pnet2019/grid_search_loop/tr5000_N1000
+ESNtrainCV.py
+2019-08-22 07:26
+1000 	 N 
+0.300 	 scale 
+1.500 	 mem 
+1.000 	 exp
+(-440537462.3574, 3849588.4900, 444387050.8474) 	 th_i, th_f, *th_sc
+0.0000 	 th
+0.0000 	 Pr
+0.0000 	 Re
+0.0000 	 F1
+0.0000 	 ACC
+0.6252 	 AUC
