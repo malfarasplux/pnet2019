@@ -299,7 +299,7 @@ def get_gridsearchpoint(feature_matrix, feature_matrix_test, patient, sepsis_lab
             pat_ipos = pat_shift[i]
 
             
-    del feature_matrix
+    del feature_matrix 
     del feature_matrix_test
     
     ## Divide in sets
