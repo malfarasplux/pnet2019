@@ -66,8 +66,14 @@ def sigmoid(x, exponent):
     
     return 1/(1+np.exp(-exponent*x))-0.5
 
+
+def rectifier(x, slope=1):
+    """Apply a rectifier function."""
+
+    return 0 if x < 0 else slope*x
+
 ### Feed data into Echo State Network #######################################
-def feedESN(features, neurons, scale, mem, func, f_arg, seed=42, silent=False):
+def feedESN(features, neurons, scale, mem, func, f_arg, seed=0, silent=False):
     """Feeds data into a ring Echo State Network. Returns ESN state.
     Adds extra (1) neuron for Ax + b = Y linear system.
 
@@ -95,7 +101,6 @@ def feedESN(features, neurons, scale, mem, func, f_arg, seed=42, silent=False):
     ESN = np.hstack((np.matmul(features, mask), np.ones((np.shape(features)[0], 1), dtype=np.double)))
     if not silent:
         print(np.shape(ESN))
-        print(np.min(ESN), np.max(ESN))
     p = np.zeros((1,neurons),dtype=np.double)
 
     for i in range(np.shape(features)[0]):
@@ -106,7 +111,7 @@ def feedESN(features, neurons, scale, mem, func, f_arg, seed=42, silent=False):
         
         ## Connect preceding neighbour 
         p = np.copy(np.roll(ESN[i,:-1],1))
-    # return ESN
+    return ESN
 
 ### Get ESN training weights (NE: normal eq.) ############################
 def get_weights_biasedNE(ESN, target):

@@ -13,7 +13,7 @@ def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id
     y_train, y_test = y_interp[train_index], y_interp[test_index]
     patients_id_train, patients_id_test = patients_id[train_index], patients_id[test_index]
 
-    elf = GradientBoostingClassifier(n_estimators=200)
+    elf = GradientBoostingClassifier(n_estimators=200, loss = 'exponential')
     # elf = RandomForestClassifier(n_estimators=1, n_jobs=-1)
 
     print("Start training...", flush=True)
@@ -100,7 +100,7 @@ if __name__ == '__main__':
     print("Group Stratified K Fold...", flush=True)
 
     train_index, test_index = GroupStratifiedKFold(np.hstack(
-        [dataset, labels.reshape(-1, 1), patients_labels.reshape(-1, 1), patients_id.reshape(-1, 1)]), 2)
+        [dataset, labels.reshape(-1, 1), patients_labels.reshape(-1, 1), patients_id.reshape(-1, 1)]), 10)
 
     X = np.nan_to_num(dataset[:, :-1])
     X_interp = dataset_interp[:, :-1]
@@ -120,8 +120,6 @@ if __name__ == '__main__':
     return_dict = manager.dict()
 
     for i in range(len(train_index)):
-        # cross_validation(train_index[i], test_index[i], X_interp, X, y_interp,
-        #                   patients_id, patients_id_samples, ESN, res, y_test_all)
         p = multiprocessing.Process(
             target=cross_validation,
             args=(train_index[i], test_index[i], X_interp, X, y_interp, patients_id, patients_id_samples, ESN, res,
@@ -146,8 +144,6 @@ if __name__ == '__main__':
     fpr, tpr, thresholds = roc_curve(y_test_all, res, pos_label=1)
 
     threshold = 0
-    accuracy = []
-    f1_score_list = []
     step = 0.001
 
     res, y_test_all, new_results, accuracy, f1_score_list = threshold_optimization(step, res, y_test_all)
