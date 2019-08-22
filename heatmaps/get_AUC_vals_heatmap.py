@@ -1,7 +1,8 @@
 # grep AUC report_ESNtrainCV_* > AUC_report.txt
 import numpy as np
 import matplotlib.pyplot as plt
-show_val = True
+show_val = False
+save_png = True
 
 ## ESN parameters
 N = 200                                     # Neurons
@@ -36,7 +37,7 @@ im = ax.imshow(AUC_matrix)
 ax.set_title("Grid search AUC opt")
 ax.set_xticks(np.arange(len(mem))) 
 ax.set_yticks(np.arange(len(scale)))
-ax.set_xticklabels(mem) 
+ax.set_xticklabels(mem,  rotation='vertical') 
 ax.set_yticklabels(scale) 
 ax.set_xlabel('mem')
 ax.set_ylabel('scale')
@@ -48,3 +49,6 @@ if show_val:
         for j in range(len(mem)):
             text = ax.text(j, i, AUC_matrix[i, j],
                            ha="center", va="center", color="w")
+
+if save_png:
+    fig.savefig('AUC.png')
