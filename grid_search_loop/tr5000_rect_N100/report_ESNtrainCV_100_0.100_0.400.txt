@@ -1,7 +1,7 @@
-1ba2e94db34d@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
+d10253e013b4@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
 /github/pnet2019/grid_search_loop/tr5000_rect_N100
 ESNtrainCV.py
-2019-08-22 12:08
+2019-08-22 14:14
 100 	 N 
 0.100 	 scale 
 0.400 	 mem 
