@@ -293,7 +293,7 @@ def get_gridsearchpoint(feature_matrix, feature_matrix_test, patient, sepsis_lab
         y_train, y_test = y[train_index[j]], y[test_index[j]]          #GSKF
         patients_id_train, patients_id_test = patient[train_index[j]], patient[test_index[j]]
         
-        w = ESNtools.get_weights_lu_biasedNE(X_train, y_train)
+        w = ESNtools.get_weights_biasedNE(X_train, y_train)
         print("Start testing...", flush=True)
         Y_pred = (np.matmul(X_test,w))
     
@@ -416,3 +416,4 @@ for i_N in range(len(N_def)):
             except:
                 print("Error at ", N, scale, mem)
                 pass
+            input()
