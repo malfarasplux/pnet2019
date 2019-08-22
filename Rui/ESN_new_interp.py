@@ -36,6 +36,7 @@ for id in np.unique(patients_id):
     features_patient = X_interp[patients_id_samples[id]]
     ESN[patients_id_samples[id], :] = feedESN(features_patient, N, scale=.001, mem=.1, func=sigmoid, f_arg=10, silent=False)
 
+
 for i in range(len(train_index)):
 
     print("TRAIN:", train_index[i], "TEST:", test_index[i], flush=True)
