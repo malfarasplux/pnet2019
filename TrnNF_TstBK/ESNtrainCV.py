@@ -245,26 +245,15 @@ def get_gridsearchpoint(feature_matrix, feature_matrix_test, patient, sepsis_lab
     pat_ipos = 0
     print("pat_shift: ",len(pat_shift))
     
-    allocateESN = True
     print('ESN: ')
+    allocateESN = True
     if allocateESN: 
         ESN = np.ones((len(feature_matrix),N+1), dtype = np.float)    
         for i in range(len(pat_shift)):
             print("Feeding ESN patient:", i)
             ESN[pat_ipos:pat_shift[i],:] = ESNtools.feedESN(feature_matrix[pat_ipos:pat_shift[i]], N, M, Mb, scale, mem, func, sigmoid_exponent)
             pat_ipos = pat_shift[i]
-
-    pat_ipos = 0
    
-   #####REMOVE
-    if allocateESN: 
-        ESN2 = np.ones((len(feature_matrix_test),N+1), dtype = np.float)    
-        for i in range(len(pat_shift)):
-            print("Feeding ESN2 patient:", i)
-            ESN2[pat_ipos:pat_shift[i],:] = ESNtools.feedESN(feature_matrix_test[pat_ipos:pat_shift[i]], N, M, Mb, scale, mem, func, sigmoid_exponent)
-            pat_ipos = pat_shift[i]
-   
-                
     else:
         for i in range(len(pat_shift)):
             if i == 0:
@@ -273,14 +262,43 @@ def get_gridsearchpoint(feature_matrix, feature_matrix_test, patient, sepsis_lab
                 ESN = np.vstack((ESN, ESNtools.feedESN(feature_matrix[pat_ipos:pat_shift[i]], N, M, Mb, scale, mem, func, sigmoid_exponent)))
             pat_ipos = pat_shift[i]
     
-    
-    for i in range(len(pat_shift)):
-        if i == 0:
-            ESN2 = ESNtools.feedESN(feature_matrix_test[pat_ipos:pat_shift[i]], N, M, Mb, scale, mem, func, sigmoid_exponent)
-        else:
-            ESN2 = np.vstack((ESN2, ESNtools.feedESN(feature_matrix_test[pat_ipos:pat_shift[i]], N, M, Mb, scale, mem, func, sigmoid_exponent)))
-        pat_ipos = pat_shift[i]
-        
+   #####BACKWARD INTERP FOR THE TEST ESN2
+    pat_ipos = 0
+    allocateESN2 = True
+    if allocateESN2: 
+        ESN2 = np.ones((len(feature_matrix_test),N+1), dtype = np.float)    
+
+        for i in range(len(pat_shift)):
+            patients_features = feature_matrix_test[pat_ipos:pat_shift[i]]
+            for h, hour in enumerate(patients_features):
+                features = patients_features[:h+1]
+                for f in range(features.shape[1]):
+                    if np.sum(np.isnan(features[:, f])) < len(features[:, f]):
+                        nan_bounds(features[:, f])
+                        nan_interpolate(features[:, f])
+                    else:
+                        features[:, f] = np.nan_to_num(features[:, f], 0)
+                ESN2[pat_ipos,:] = ESNtools.feedESN(features, N, M, Mb, scale, mem, func, sigmoid_exponent)[-1]
+                pat_ipos = pat_ipos + 1
+                
+    else:
+        for i in range(len(pat_shift)):
+            patients_features = feature_matrix_test[pat_ipos:pat_shift[i]]
+            for h, hour in enumerate(patients_features):
+                features = patients_features[:h+1]
+                for f in range(features.shape[1]):
+                    if np.sum(np.isnan(features[:, f])) < len(features[:, f]):
+                        nan_bounds(features[:, f])
+                        nan_interpolate(features[:, f])
+                    else:
+                        features[:, f] = np.nan_to_num(features[:, f], 0)
+                if i == 0:
+                    ESN2 = ESNtools.feedESN(features, N, M, Mb, scale, mem, func, sigmoid_exponent)[-1]
+                else:
+                    ESN2 = np.vstack((ESN2, ESNtools.feedESN(features, N, M, Mb, scale, mem, func, sigmoid_exponent)))
+            pat_ipos = pat_shift[i]
+
+            
     del feature_matrix
     del feature_matrix_test
     
