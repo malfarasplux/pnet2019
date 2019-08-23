@@ -1,5 +1,5 @@
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score, precision_score, recall_score, roc_curve
-from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 from iterative_interpolation import *
 from GroupStratifiedKFold import GroupStratifiedKFold
 import multiprocessing
@@ -13,12 +13,15 @@ def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id
     y_train, y_test = y_interp[train_index], y_interp[test_index]
     patients_id_train, patients_id_test = patients_id[train_index], patients_id[test_index]
 
-    elf = GradientBoostingClassifier(n_estimators=200, loss = 'exponential')
-    # elf = RandomForestClassifier(n_estimators=1, n_jobs=-1)
+    try:
+        w = get_weights_lu_biasedNE(ESN[train_index], y_train)
+    except:
+        w = get_weights_biasedNE(ESN[train_index], y_train)
+    elf = DecisionTreeClassifier(class_weight="balanced")
 
     print("Start training...", flush=True)
 
-    elf = elf.fit(ESN[train_index], y_train)
+    elf = elf.fit(np.matmul(ESN[train_index], w).reshape(-1, 1), y_train)
     print("Start testing...", flush=True)
 
     aux_pred = []
@@ -35,14 +38,15 @@ def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id
                             nan_interpolate(features[:, f])
                         else:
                             features[:, f] = np.nan_to_num(features[:, f], -1)
-                pred = elf.predict_proba(features[-1].reshape(1, -1))[:, 1]
-                results = elf.predict(features[-1].reshape(1, -1))
+                ESN_test = feedESN(features, 100, scale=.001, mem=.1, func=sigmoid, f_arg=10, silent=True)[-1]
+                pred = elf.predict_proba(np.matmul(ESN_test, w).reshape(-1, 1))[:, 1]
+                results = elf.predict(np.matmul(ESN_test, w).reshape(-1, 1))
                 aux_pred.append(pred)
                 aux_result.append(results)
     else:
         print("Regular Running.", flush=True)
-        pred = elf.predict_proba(ESN[test_index])[:, 1]
-        results = elf.predict(ESN[test_index])
+        pred = elf.predict_proba(np.matmul(ESN[test_index], w).reshape(-1, 1))[:, 1]
+        results = elf.predict(np.matmul(ESN[test_index], w).reshape(-1, 1))
 
     print("Finished Testing.\n Next!", flush=True)
 
@@ -80,9 +84,8 @@ def build_ESN(patients_id, X, N, ESN, feedESN):
     for id_ in np.unique(patients_id):
         patients_id_samples.append(np.where(patients_id == id_)[0])
         features_patient = X[patients_id_samples[id_]]
-        ESN[patients_id_samples[id_], :] = 0
-        np.array(feedESN(features_patient, N, scale=.001, mem=.1, func=sigmoid, f_arg=10,
-                                                  silent=True))
+        ESN[patients_id_samples[id_], :] = np.array(feedESN(features_patient, N, scale=.001,
+                                                    mem=.1, func=sigmoid, f_arg=10, silent=True))
     return patients_id_samples, ESN
 
 
@@ -93,7 +96,7 @@ if __name__ == '__main__':
     print("Loading datasets...", flush=True)
 
     dataset_interp = np.nan_to_num(np.load('./Datasets/training_setA_nanfill.npy'))
-    dataset = np.load('./Datasets/training_setA.npy')
+    dataset = np.nan_to_num(np.load('./Datasets/training_setA.npy'))
     patients_id = np.load('./Datasets/training_setA_patient.npy')
     labels, patients_labels = np.load('./Datasets/dataset_A_mean_subs.npy').T[-3:-1]
 
@@ -102,8 +105,8 @@ if __name__ == '__main__':
     train_index, test_index = GroupStratifiedKFold(np.hstack(
         [dataset, labels.reshape(-1, 1), patients_labels.reshape(-1, 1), patients_id.reshape(-1, 1)]), 10)
 
-    X = np.nan_to_num(dataset[:, :-1])
-    X_interp = dataset_interp[:, :-1]
+    X = np.nan_to_num(dataset)
+    X_interp = dataset_interp
     y_interp = labels
 
     acc, f1, auc, res, y_test_all = [], [], [], [], []
@@ -123,7 +126,7 @@ if __name__ == '__main__':
         p = multiprocessing.Process(
             target=cross_validation,
             args=(train_index[i], test_index[i], X_interp, X, y_interp, patients_id, patients_id_samples, ESN, res,
-                  y_test_all, backward_interpolation, acc, f1, auc, return_dict, i))
+                y_test_all, backward_interpolation, acc, f1, auc, return_dict, i))
 
         processes.append(p)
         p.start()
@@ -162,3 +165,4 @@ if __name__ == '__main__':
     f1.append(f1_score(y_test_all, new_results))
     print("Accuracy th: ", accuracy_score(y_test_all, new_results), flush=True)
     print("F1-Score th: ", f1_score(y_test_all, new_results), flush=True)
+
