@@ -1,5 +1,5 @@
-omen@Linux-4.8.0-53-generic-x86_64-with-debian-stretch-sid
-/mnt/sda1/github/pnet2019/get_templates
-get_healthytemp.py
-2019-08-18 17:21
+DESKTOP-0549TJJ@Windows-10-10.0.17763-SP0
+D:\Physionet Challenge\GitHub\pnet2019\get_templates\A
+get_healthytemp_std.py
+2019-08-23 15:18
 Dataset: ../training_setA/
