@@ -54,15 +54,19 @@ def threshold_optimization(step, res, y_test_all):
     return res, y_test_all, new_results, accuracy, f1_score_list
 
 
-def build_ESN(patients_id, X, N, ESN, feedESN, build_ESN):
+def build_ESN(patients_id, X, N, ESN):
+    for id_ in np.unique(patients_id):
+        features_patient = X[patients_id_samples[id_]]
+        ESN[patients_id_samples[id_], :] = 0
+        np.array(feedESN(features_patient, N, scale=.001, mem=.1, func=sigmoid, f_arg=10, silent=True))
+    return ESN
+
+
+def build_patient_id_samples(patients_id):
     patients_id_samples = []
     for id_ in np.unique(patients_id):
         patients_id_samples.append(np.where(patients_id == id_)[0])
-        if build_ESN:
-            features_patient = X[patients_id_samples[id_]]
-            ESN[patients_id_samples[id_], :] = 0
-            np.array(feedESN(features_patient, N, scale=.001, mem=.1, func=sigmoid, f_arg=10, silent=True))
-    return patients_id_samples, ESN
+    return patients_id_samples
 
 
 def back_interp(X, patients_id, patients_id_samples, new_X):
@@ -112,15 +116,17 @@ if __name__ == '__main__':
 
     acc, f1, auc, res, y_test_all = [], [], [], [], []
 
-    # Build the Net
-    N = 100
-    ESN = np.zeros((X_interp.shape[0], N + 1))
-
-    patients_id_samples, ESN = build_ESN(patients_id, X, N, ESN, feedESN, True)
+    patients_id_samples = build_patient_id_samples(patients_id)
 
     print("Building new dataset...")
     new_X = np.zeros(np.shape(X))
     new_X = back_interp(X, patients_id, patients_id_samples, new_X)
+
+    # Build the Net
+    N = 100
+    ESN = np.zeros((X_interp.shape[0], N + 1))
+
+    ESN = build_ESN(patients_id, new_X, N, ESN)
 
     print("Start Cross Validation...", flush=True)
 
