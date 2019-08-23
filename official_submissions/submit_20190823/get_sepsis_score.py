@@ -8,7 +8,7 @@ def get_sepsis_score(data, model):
 
     # Use model parameters
     ESNtools = model['f']
-    
+
     ## ESN Generation parameters
     N = model['N_def']                        # Neurons
     mem = model['mem_def']                    # memory
@@ -32,14 +32,21 @@ def get_sepsis_score(data, model):
     th_scale = model['th_scale']
 
     ## Perform ESN feed
-    ESN = ESNtools.feedESN(feature_matrix, N, M, Mb, scale, mem, func, sigmoid_exponent)
+    # Apply backwards interpolation
+    for f in range(feature_matrix.shape[1]):
+        if np.sum(np.isnan(feature_matrix[:, f])) < len(feature_matrix[:, f]):
+            ESNtools.nan_bounds(feature_matrix[:, f])
+            ESNtools.nan_interpolate(feature_matrix[:, f])
+        else:
+            feature_matrix[:, f] = np.nan_to_num(feature_matrix[:, f], -1)
+    ESN = np.array(ESNtools.feedESN(feature_matrix, 100, scale=.0001, mem=1, func=ESNtools.sigmoid, f_arg=1))
+
     del feature_matrix
-    
     
     ## Compute class prediction
     single_sample = True
     if single_sample:
-        Y_pred = (np.matmul(ESN[-1,:],w))
+        Y_pred = (np.matmul(ESN[-1, :], w))
         scores = (Y_pred - th_min) / th_scale
         labels = np.asarray(Y_pred > th_max, dtype = np.int)
         scores[np.where(scores > 1.0)[0]]=1.0
@@ -109,52 +116,63 @@ def load_sepsis_model():
                 ## Connect preceding neighbour 
                 p = np.copy(np.roll(ESN[i,:-1],1))
             return ESN
-        
-        ### Get ESN training weights (NE: normal eq.) ############################
+
+        # Fix boundary nans (replicate head/tail vals)
         @staticmethod
-        def get_weights_biasedNE(ESN, target):
-            """Computes ESN training weights solving (pinv) the NE linear system w/ bias.
-            Parameters
-            ----------
-            ESN : (np.array) Echo State Network state
-            
-            target : (np.array) target labels to train with
-            
-            """
-            Y_aux = np.matmul(ESN.T,target)
-            ESNinv = np.linalg.pinv(np.matmul(ESN.T,ESN))
-            w = np.matmul(ESNinv, Y_aux)
-            return w
-        
+        def nan_bounds(feats):
+            nanidx = np.where(np.isnan(feats))[0]
+            pointer_left = 0
+            pointer_right = len(feats) - 1
+            fix_left = pointer_left in nanidx
+            fix_right = pointer_right in nanidx
+            while fix_left:
+                if pointer_left in nanidx:
+                    pointer_left += 1
+                    # print("pointer_left:", pointer_left)
+                else:
+                    val_left = feats[pointer_left]
+                    feats[:pointer_left] = val_left * np.ones((1, pointer_left), dtype=np.float)
+                    fix_left = False
+
+            while fix_right:
+                if pointer_right in nanidx:
+                    pointer_right -= 1
+                    # print("pointer_right:", pointer_right)
+                else:
+                    val_right = feats[pointer_right]
+                    feats[pointer_right + 1:] = val_right * np.ones((1, len(feats) - pointer_right - 1), dtype=np.float)
+                    fix_right = False
+
+                    # nan interpolation
         @staticmethod
-        def get_weights_qr_biasedNE(ESN, target):
-            """Computes ESN training weights solving (qr) the NE linear system w/ bias.
-            Parameters
-            ----------
-            ESN : (np.array) Echo State Network state
-            
-            target : (np.array) target labels to train with
-            
-            """
-            Q, R = linalg.qr((np.matmul(ESN.T,ESN)))            # QR decomposition with qr function (RtR)w = RtY
-            Y_aux = np.dot(Q.T, np.matmul(ESN.T, target))       # Let y=Q'.ESNt using matrix multiplication
-            w = linalg.solve(R, Y_aux)                          # Solve Rx=y
-            return w
-        
-        @staticmethod
-        def get_weights_lu_biasedNE(ESN, target):
-            """Computes ESN training weights solving (lu) the NE linear system w/ bias.
-            Parameters
-            ----------
-            ESN : (np.array) Echo State Network state
-            
-            target : (np.array) target labels to train with
-            
-            """
-            LU = linalg.lu_factor((np.matmul(ESN.T,ESN)))      # LU decomposition with (RtR)w = RtY
-            Y_aux = (np.matmul(ESN.T, target))                 # Let Y=ESNt.y using matrix multiplication
-            w = linalg.lu_solve(LU, Y_aux)                     # Solve Rx=y
-            return w
+        def nan_interpolate(feats):
+            nanidx = np.where(np.isnan(feats))[0]
+            nan_remain = len(nanidx)
+            nanid = 0
+            while nan_remain > 0:
+                nanpos = nanidx[nanid]
+                nanval = feats[nanpos - 1]
+                nan_remain -= 1
+
+                nandim = 1
+                initpos = nanpos
+
+                # Check whether it extends
+                while nanpos + 1 in nanidx:
+                    nanpos += 1
+                    nanid += 1
+                    nan_remain -= 1
+                    nandim += 1
+                    # Average sides
+                    if np.isfinite(feats[nanpos + 1]):
+                        nanval = 0.5 * (nanval + feats[nanpos + 1])
+
+                # Single value average
+                if nandim == 1:
+                    nanval = 0.5 * (nanval + feats[nanpos + 1])
+                feats[initpos:initpos + nandim] = nanval * np.ones((1, nandim), dtype=np.double)
+                nanpos += 1
+                nanid += 1
 
     esnt = ESNT()
     model = dict()
