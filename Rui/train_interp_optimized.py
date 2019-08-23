@@ -82,8 +82,8 @@ def back_interp(X, patients_id, patients_id_samples, new_X, ESN):
                 else:
                     features[:, f] = np.nan_to_num(features[:, f], -1)
             if ESN:
-                new_X[patients_id_samples[id_][h]] = np.array(feedESN(features, N, scale=.0001, mem=1,
-                                                            func=sigmoid, f_arg=1, silent=True))
+                new_X[patients_id_samples[id_][h]] = np.array(feedESN(features, 100, scale=.0001, mem=1,
+                                                            func=sigmoid, f_arg=1, silent=True))[-1]
             else:
                 new_X[patients_id_samples[id_][h]] = features[-1]
     return new_X
@@ -122,15 +122,16 @@ if __name__ == '__main__':
 
     patients_id_samples = build_patient_id_samples(patients_id)
 
-    print("Building new dataset...")
-    new_X = np.zeros(np.shape(X))
-    new_X = back_interp(X, patients_id, patients_id_samples, new_X, True)
-
-    # Build the Net
     N = 100
     scale = 0.0001
     mem = 1.0
     exponent = 1.0
+
+    print("Building new dataset...")
+    new_X = np.zeros((np.shape(X)[0], N + 1))
+    new_X = back_interp(X, patients_id, patients_id_samples, new_X, True)
+
+    # Build the Net
     # ESN = np.zeros((X_interp.shape[0], N + 1))
     ESN = []
 
