@@ -211,6 +211,8 @@ elif std:
 ## nan to zero
 if nan_to_zero:
     feature_matrix[np.isnan(feature_matrix)]=0
+    feature_matrix_test[np.isnan(feature_matrix_test)]=0
+
     print("Changed nan to 0")
 
 ## Septic groups stratify
@@ -252,6 +254,8 @@ def get_gridsearchpoint(feature_matrix, feature_matrix_test, patient, sepsis_lab
             ESN[pat_ipos:pat_shift[i],:] = ESNtools.feedESN(feature_matrix[pat_ipos:pat_shift[i]], N, M, Mb, scale, mem, func, sigmoid_exponent)
             pat_ipos = pat_shift[i]
 
+    pat_ipos = 0
+    if allocateESN: 
         ESN2 = np.ones((len(feature_matrix_test),N+1), dtype = np.float)    
         for i in range(len(pat_shift)):
             print("Feeding ESN2 patient:", i)
@@ -416,4 +420,3 @@ for i_N in range(len(N_def)):
             except:
                 print("Error at ", N, scale, mem)
                 pass
-            input()
