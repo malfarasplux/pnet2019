@@ -13,6 +13,7 @@ std = False
 numpy_load = True
 nanfill = True
 
+import numpy as np
 ## ESN parameters
 N_def = [100]                                     # Neurons
 #scale_def = [0.001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]   # scaling
@@ -28,7 +29,6 @@ exponent_def = 1.0                                # sigmoid exponent
 #name_struct = '_{:03d}_{:1.3f}_{:1.3f}'.format(N_def, scale_def, mem_def)
 
 ## Imports
-import numpy as np
 import os
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
