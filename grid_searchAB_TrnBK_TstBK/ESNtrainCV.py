@@ -4,7 +4,7 @@
 ## Config
 # biased_regress = True
 # normal_equations = True
-dataset = "training_1"
+dataset = "training"
 path = "../" + dataset +"/"
 kfold_split = 10
 nan_to_zero = True
@@ -413,8 +413,8 @@ for i_N in range(len(N_def)):
         scale = scale_def[i_scale]   # scaling factor
         for i_mem in range(len(mem_def)):
             mem = mem_def[i_mem]       # memory
-            #try:
-            get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index)
-            #except:
-            #    print("Error at ", N, scale, mem)
-            #    pass
+            try:
+                get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index)
+            except:
+                print("Error at ", N, scale, mem)
+                pass
