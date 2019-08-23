@@ -40,7 +40,7 @@ def get_sepsis_score(data, model):
             ESNtools.nan_interpolate(feature_matrix[:, f])
         else:
             feature_matrix[:, f] = np.nan_to_num(feature_matrix[:, f], -1)
-    ESN = np.array(ESNtools.feedESN(feature_matrix, 100, scale=.0001, mem=1, func=ESNtools.sigmoid, f_arg=1))
+    ESN = ESNtools.feedESN(feature_matrix, N, M, Mb, scale, mem, func, sigmoid_exponent)
 
     del feature_matrix
     
@@ -182,8 +182,8 @@ def load_sepsis_model():
         
     # Model parameters
     model['N_def'] = 100         # Neurons
-    model['scale_def'] = 0.001   # scaling
-    model['mem_def'] = 0.1       # memory
+    model['scale_def'] = 0.0001  # scaling
+    model['mem_def'] = 1.0       # memory
     model['exponent_def'] = 1.0  # sigmoid exponent
 
     # Thresholds
