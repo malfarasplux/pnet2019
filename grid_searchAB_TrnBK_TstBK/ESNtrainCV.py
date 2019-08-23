@@ -316,7 +316,7 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, 
     th_f = np.max(results)
     
     ## AUC-based CV
-    AUC_CV = True
+    AUC_CV = False
     if AUC_CV:
         th_max = 0
         f1 = 0
