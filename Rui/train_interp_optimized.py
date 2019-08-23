@@ -4,15 +4,16 @@ from iterative_interpolation import *
 from GroupStratifiedKFold import GroupStratifiedKFold
 import multiprocessing
 from ESNtools import *
-from numba import jit
 
 
 def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id, patients_id_samples, ESN, res,
                      y_test_all, backward_interpolation, acc, f1, auc, return_dict, num):
     print("TRAIN:", train_index, "TEST:", test_index)
-    X_train, X_test = X[train_index], X[test_index]
+    if np.size(ESN) > 0:
+        X_train, X_test = X[train_index], X[test_index]
+    else:
+        X_train, X_test = ESN[train_index], ESN[test_index]
     y_train, y_test = y_interp[train_index], y_interp[test_index]
-    patients_id_train, patients_id_test = patients_id[train_index], patients_id[test_index]
 
     elf = GradientBoostingClassifier(n_estimators=200, loss='exponential')
     # elf = RandomForestClassifier(n_estimators=1, n_jobs=-1)
@@ -41,7 +42,6 @@ def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id
     print("Finished Testing.\n Next!", flush=True)
 
 
-# @jit(debug=True)
 def threshold_optimization(step, res, y_test_all):
     accuracy, f1_score_list = [], []
     for threshold in np.arange(start=0, stop=1, step=step):
@@ -54,7 +54,6 @@ def threshold_optimization(step, res, y_test_all):
     return res, y_test_all, new_results, accuracy, f1_score_list
 
 
-# @njit(debug=True)
 def build_ESN(patients_id, X, N, ESN, feedESN, build_ESN):
     patients_id_samples = []
     for id_ in np.unique(patients_id):
@@ -117,7 +116,7 @@ if __name__ == '__main__':
     N = 100
     ESN = np.zeros((X_interp.shape[0], N + 1))
 
-    patients_id_samples, ESN = build_ESN(patients_id, X, N, ESN, feedESN, False)
+    patients_id_samples, ESN = build_ESN(patients_id, X, N, ESN, feedESN, True)
 
     print("Building new dataset...")
     new_X = np.zeros(np.shape(X))
