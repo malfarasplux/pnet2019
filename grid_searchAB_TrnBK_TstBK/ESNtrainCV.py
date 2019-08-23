@@ -227,7 +227,7 @@ func = ESNtools.sigmoid
 groups = patient
 train_index, test_index = GSK.GroupStratifiedKFold(np.hstack([patient_sep.reshape(-1,1), groups.reshape(-1,1)]), 10)
 
-def get_gridsearchpoint(feature_matrix, feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index):
+def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index):
     script_name = 'ESNtrainCV'
     name_struct_meta = "_N_scale_mem"
     name_struct = '_{:03d}_{:1.3f}_{:1.3f}'.format(N, scale, mem)
@@ -236,7 +236,7 @@ def get_gridsearchpoint(feature_matrix, feature_matrix, patient, sepsis_label, M
     
     ## Perform ESN feed
     pat_shift = np.append(np.where(np.diff(patient)!=0)[0] + 1, [len(patient)])
-    print("pat_shift: ",len(pat_shift))
+    #print("pat_shift: ",len(pat_shift))
     
     print('ESN: ')
     allocateESN = True
@@ -248,6 +248,7 @@ def get_gridsearchpoint(feature_matrix, feature_matrix, patient, sepsis_label, M
 
         for i in range(len(pat_shift)):
             patients_features = feature_matrix[pat_ipos:pat_shift[i]]
+            print("Feeding patient ", i)
             for h, hour in enumerate(patients_features):
                 features = patients_features[:h+1]
                 for f in range(features.shape[1]):
@@ -277,9 +278,7 @@ def get_gridsearchpoint(feature_matrix, feature_matrix, patient, sepsis_label, M
             pat_ipos = pat_shift[i]
 
             
-    del feature_matrix 
-    del feature_matrix
-    
+   
     ## Divide in sets
     X = ESN
     X2 = ESN
@@ -369,9 +368,9 @@ def get_gridsearchpoint(feature_matrix, feature_matrix, patient, sepsis_label, M
         f.write(time.strftime("%Y-%m-%d %H:%M") + '\n')
         # f.write('Dataset: ' + path + '\n')
         f.write('{:03d} \t N \n'.format(N))
-        f.write('{:1.3f} \t scale \n'.format(scale))
-        f.write('{:1.3f} \t mem \n'.format(mem))
-        f.write('%1.3f \t exp\n' % sigmoid_exponent)
+        f.write('{:1.4f} \t scale \n'.format(scale))
+        f.write('{:1.4f} \t mem \n'.format(mem))
+        f.write('%1.4f \t exp\n' % sigmoid_exponent)
         f.write('(%2.4f, %2.4f, %2.4f) \t th_i, th_f, *th_sc\n' % (th_i, th_f, th_f-th_i))
         f.write('%2.4f \t th\n' % th_max)
         f.write('%2.4f \t Pr\n' % Pr)
@@ -386,9 +385,9 @@ def get_gridsearchpoint(feature_matrix, feature_matrix, patient, sepsis_label, M
     print(time.strftime("%Y-%m-%d %H:%M"))
     print('Dataset: ' + path)
     print('N: {:03d}'.format(N))
-    print('scale: {:1.3f}'.format(scale))
-    print('mem: {:1.3f}'.format(mem))
-    print('exp: %1.3f' % sigmoid_exponent)
+    print('scale: {:1.4f}'.format(scale))
+    print('mem: {:1.4f}'.format(mem))
+    print('exp: %1.4f' % sigmoid_exponent)
     print('th_i, th_f, *th_sc: (%2.4f, %2.4f, %2.4f)' % (th_i, th_f, th_f-th_i))
     print('th: %2.4f' % th_max)
     print('Pr: %2.4f' % Pr)
@@ -414,8 +413,8 @@ for i_N in range(len(N_def)):
         scale = scale_def[i_scale]   # scaling factor
         for i_mem in range(len(mem_def)):
             mem = mem_def[i_mem]       # memory
-            try:
-                get_gridsearchpoint(feature_matrix, feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index)
-            except:
-                print("Error at ", N, scale, mem)
-                pass
+            #try:
+            get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index)
+            #except:
+            #    print("Error at ", N, scale, mem)
+            #    pass
