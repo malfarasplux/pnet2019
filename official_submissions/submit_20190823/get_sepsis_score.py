@@ -45,23 +45,17 @@ def get_sepsis_score(data, model):
     del feature_matrix
     
     ## Compute class prediction
-    single_sample = True
-    if single_sample:
-        Y_pred = (np.matmul(ESN[-1, :], w))
-        scores = (Y_pred - th_min) / th_scale
-        labels = np.asarray(Y_pred > th_max, dtype = np.int)
-        scores[np.where(scores > 1.0)[0]]=1.0
-        scores[np.where(scores < 0.0)[0]]=0.0
 
-    else:
-        Y_pred = (np.matmul(ESN,w))
-        scores = (Y_pred - th_min) / th_scale
-        labels = np.asarray(Y_pred > th_max, dtype = np.int)
-        scores[np.where(scores > 1.0)[0]]=1.0
-        scores[np.where(scores < 0.0)[0]]=0.0
-        print(scores)
-        print(np.shape(scores))
+    Y_pred = (np.matmul(ESN[-1, :], w))
+    scores = (Y_pred - th_min) / th_scale
+    labels = np.asarray(Y_pred > th_max, dtype = np.int)
+    if scores > 1.0:
+        scores = 1.0
+    elif scores < 0.0:
+        scores = 0.0
+
     return scores, labels
+
 
 def load_sepsis_model():
     import scipy.linalg as linalg
