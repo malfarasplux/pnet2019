@@ -4,7 +4,7 @@
 ## Config
 # biased_regress = True
 # normal_equations = True
-dataset = "training"
+dataset = "training_AB"
 path = "../" + dataset +"/"
 kfold_split = 10
 nan_to_zero = True
