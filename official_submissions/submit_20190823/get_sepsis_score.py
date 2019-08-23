@@ -2,6 +2,7 @@
 
 import numpy as np
 
+
 def get_sepsis_score(data, model):
     feature_matrix = data
     feature_matrix[np.isnan(feature_matrix)]=-1
@@ -186,9 +187,9 @@ def load_sepsis_model():
     model['exponent_def'] = 1.0  # sigmoid exponent
 
     # Thresholds
-    model['th_max'] = 0.0629 
-    model['th_min'] = -0.4158
-    model['th_scale'] = 22.7957
+    model['th_max'] = 0.0575
+    model['th_min'] = -0.4868
+    model['th_scale'] = 17.0103
     
     # Model functions
     model['f'] = esnt
@@ -196,7 +197,7 @@ def load_sepsis_model():
     model['w'] = w
 
     # Model Mask
-    model['M'] = 2*np.random.rand(40,model['N_def'])-1
-    model['Mb'] = 2*np.random.rand(1,model['N_def'])-1
+    model['M'] = 2*np.random.rand(40, model['N_def'])-1
+    model['Mb'] = 2*np.random.rand(1, model['N_def'])-1
 
     return model
