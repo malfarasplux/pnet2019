@@ -9,7 +9,7 @@ from ESNtools import *
 def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id, patients_id_samples, ESN, res,
                      y_test_all, backward_interpolation, acc, f1, auc, return_dict, num):
     print("TRAIN:", train_index, "TEST:", test_index)
-    if np.size(ESN) > 0:
+    if np.size(ESN) == 0:
         X_train, X_test = X[train_index], X[test_index]
     else:
         X_train, X_test = ESN[train_index], ESN[test_index]
@@ -57,8 +57,8 @@ def threshold_optimization(step, res, y_test_all):
 def build_ESN(patients_id, X, N, ESN):
     for id_ in np.unique(patients_id):
         features_patient = X[patients_id_samples[id_]]
-        ESN[patients_id_samples[id_], :] = 0
-        np.array(feedESN(features_patient, N, scale=.001, mem=.1, func=sigmoid, f_arg=10, silent=True))
+        ESN[patients_id_samples[id_], :] = np.array(feedESN(features_patient, N, scale=.0001, mem=1,
+                                                            func=sigmoid, f_arg=1, silent=True))
     return ESN
 
 
@@ -69,7 +69,7 @@ def build_patient_id_samples(patients_id):
     return patients_id_samples
 
 
-def back_interp(X, patients_id, patients_id_samples, new_X):
+def back_interp(X, patients_id, patients_id_samples, new_X, ESN):
     for id_ in np.unique(patients_id):
         print(id_)
         patients_features = X[patients_id_samples[id_]]
@@ -81,7 +81,11 @@ def back_interp(X, patients_id, patients_id_samples, new_X):
                     nan_interpolate(features[:, f])
                 else:
                     features[:, f] = np.nan_to_num(features[:, f], -1)
-        new_X[patients_id_samples[id_][h]] = features[-1]
+            if ESN:
+                new_X[patients_id_samples[id_][h]] = np.array(feedESN(features, 100, scale=.0001, mem=1,
+                                                            func=sigmoid, f_arg=1, silent=True))[-1]
+            else:
+                new_X[patients_id_samples[id_][h]] = features[-1]
     return new_X
 
 
@@ -118,15 +122,20 @@ if __name__ == '__main__':
 
     patients_id_samples = build_patient_id_samples(patients_id)
 
+    N = 100
+    scale = 0.0001
+    mem = 1.0
+    exponent = 1.0
+
     print("Building new dataset...")
-    new_X = np.zeros(np.shape(X))
-    new_X = back_interp(X, patients_id, patients_id_samples, new_X)
+    new_X = np.zeros((np.shape(X)[0], N + 1))
+    new_X = back_interp(X, patients_id, patients_id_samples, new_X, True)
 
     # Build the Net
-    N = 100
-    ESN = np.zeros((X_interp.shape[0], N + 1))
+    # ESN = np.zeros((X_interp.shape[0], N + 1))
+    ESN = []
 
-    ESN = build_ESN(patients_id, new_X, N, ESN)
+    # ESN = build_ESN(patients_id, new_X, N, ESN)
 
     print("Start Cross Validation...", flush=True)
 
