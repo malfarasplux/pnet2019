@@ -4,7 +4,7 @@
 ## Config
 # biased_regress = True
 # normal_equations = True
-dataset = "training_AB"
+dataset = "training_1"
 path = "../" + dataset +"/"
 kfold_split = 10
 nan_to_zero = True
@@ -227,96 +227,122 @@ func = ESNtools.sigmoid
 groups = patient
 train_index, test_index = GSK.GroupStratifiedKFold(np.hstack([patient_sep.reshape(-1,1), groups.reshape(-1,1)]), 10)
 
+#ENSEMBLES keep function
+def keep_ensembles(i, ensemble_results, results, ensemble_target, target, ensemble_patient, patient):
+    if i==0:
+        return ensemble_results.append(results), ensemble_target.append(target), ensemble_patient.append(patient)
+    else: 
+        return ensemble_results.append(results), ensemble_target, ensemble_patient
+
+#Gridsearch point function
 def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index):
     script_name = 'ESNtrainCV'
     name_struct_meta = "_N_scale_mem"
-    name_struct = '_{:03d}_{:1.3f}_{:1.3f}'.format(N, scale, mem)
+    name_struct = '_{:03d}_{:1.4f}_{:1.4f}'.format(N, scale, mem)
 
     ## ESN Generation parameters
     
     ## Perform ESN feed
     pat_shift = np.append(np.where(np.diff(patient)!=0)[0] + 1, [len(patient)])
-    #print("pat_shift: ",len(pat_shift))
-    
-    print('ESN: ')
-    allocateESN = True
-    #####BACKWARD INTERP FOR THE ESNs
-    pat_ipos = 0
-    allocateESN = True
-    if allocateESN: 
-        ESN = np.ones((len(feature_matrix),N+1), dtype = np.float)    
+    print("pat_shift: ",len(pat_shift))
 
-        for i in range(len(pat_shift)):
-            patients_features = feature_matrix[pat_ipos:pat_shift[i]]
-            print("Feeding patient ", i)
-            for h, hour in enumerate(patients_features):
-                features = patients_features[:h+1]
-                for f in range(features.shape[1]):
-                    if np.sum(np.isnan(features[:, f])) < len(features[:, f]):
-                        nan_bounds(features[:, f])
-                        nan_interpolate(features[:, f])
-                    else:
-                        features[:, f] = np.nan_to_num(features[:, f], 0)
-                ESN[pat_ipos,:] = ESNtools.feedESN(features, N, M, Mb, scale, mem, func, sigmoid_exponent)[-1]
-                pat_ipos = pat_ipos + 1
-                
+    ## ENSEMBLE LOOP
+    ensemble_results = []
+    ensemble_target = [] 
+    ensemble_patient = []    
+    get_ensembles = True
+    if get_ensembles:
+        ensemble_max = 10
     else:
-        for i in range(len(pat_shift)):
-            patients_features = feature_matrix[pat_ipos:pat_shift[i]]
-            for h, hour in enumerate(patients_features):
-                features = patients_features[:h+1]
-                for f in range(features.shape[1]):
-                    if np.sum(np.isnan(features[:, f])) < len(features[:, f]):
-                        nan_bounds(features[:, f])
-                        nan_interpolate(features[:, f])
+        ensemble_max = 1
+    
+    for ESNi in range(ensemble_max):
+        print('ESN: ')
+        allocateESN = True
+
+        #####BACKWARD INTERP FOR THE ESNs
+        pat_ipos = 0
+        allocateESN = True
+        if allocateESN: 
+            ESN = np.ones((len(feature_matrix),N+1), dtype = np.float)    
+
+            for i in range(len(pat_shift)):
+                patients_features = feature_matrix[pat_ipos:pat_shift[i]]
+                for h, hour in enumerate(patients_features):
+                    features = patients_features[:h+1]
+                    for f in range(features.shape[1]):
+                        if np.sum(np.isnan(features[:, f])) < len(features[:, f]):
+                            nan_bounds(features[:, f])
+                            nan_interpolate(features[:, f])
+                        else:
+                            features[:, f] = np.nan_to_num(features[:, f], 0)
+                    ESN[pat_ipos,:] = ESNtools.feedESN(features, N, M, Mb, scale, mem, func, sigmoid_exponent)[-1]
+                    pat_ipos = pat_ipos + 1
+                    
+        else:
+            for i in range(len(pat_shift)):
+                patients_features = feature_matrix[pat_ipos:pat_shift[i]]
+                for h, hour in enumerate(patients_features):
+                    features = patients_features[:h+1]
+                    for f in range(features.shape[1]):
+                        if np.sum(np.isnan(features[:, f])) < len(features[:, f]):
+                            nan_bounds(features[:, f])
+                            nan_interpolate(features[:, f])
+                        else:
+                            features[:, f] = np.nan_to_num(features[:, f], 0)
+                    if i == 0:
+                        ESN = ESNtools.feedESN(features, N, M, Mb, scale, mem, func, sigmoid_exponent)[-1]
                     else:
-                        features[:, f] = np.nan_to_num(features[:, f], 0)
-                if i == 0:
-                    ESN = ESNtools.feedESN(features, N, M, Mb, scale, mem, func, sigmoid_exponent)[-1]
-                else:
-                    ESN = np.vstack((ESN, ESNtools.feedESN(features, N, M, Mb, scale, mem, func, sigmoid_exponent)))
-            pat_ipos = pat_shift[i]
+                        ESN = np.vstack((ESN, ESNtools.feedESN(features, N, M, Mb, scale, mem, func, sigmoid_exponent)))
+                pat_ipos = pat_shift[i]
 
-            
-   
-    ## Divide in sets
-    X = ESN
-    X2 = ESN
-    y = sepsis_label
-    
-    ## KFold
-    results = []
-    target = []
-    kk = 0
-
-    #for train_index, test_index in skf.split(X,y): #Stratified KFold
-    for j in range(len(train_index)):                                  #GSKF
-        X_train, X_test = X[train_index[j]], X2[test_index[j]]          #GSKF
-        y_train, y_test = y[train_index[j]], y[test_index[j]]          #GSKF
-        patients_id_train, patients_id_test = patient[train_index[j]], patient[test_index[j]]
         
-        w = ESNtools.get_weights_biasedNE(X_train, y_train)
-        print("Start testing...", flush=True)
-        Y_pred = (np.matmul(X_test,w))
-    
-        print(kk, ' realisation ')
-        print("auc: ", roc_auc_score(y_test, Y_pred))
-        kk +=1
-        target.append(y_test)
-        results.append(Y_pred)
-    
-    ## Evaluate results
-    results = np.concatenate(results)
-    target = np.concatenate(target)
-    auc = roc_auc_score(target,results)
-    print('auc: ', auc)
+        ## Divide in sets
+        X = ESN
+        X2 = ESN
+        y = sepsis_label
+        
+        ## KFold
+        results = []
+        target = []
+        kk = 0
+
+        #for train_index, test_index in skf.split(X,y): #Stratified KFold
+        for j in range(len(train_index)):                                  #GSKF
+            X_train, X_test = X[train_index[j]], X2[test_index[j]]          #GSKF
+            y_train, y_test = y[train_index[j]], y[test_index[j]]          #GSKF
+            patients_id_train, patients_id_test = patient[train_index[j]], patient[test_index[j]]
+            
+            w = ESNtools.get_weights_biasedNE(X_train, y_train)
+            print("Start testing...", flush=True)
+            Y_pred = (np.matmul(X_test,w))
+        
+            print(kk, ' realisation ')
+            print("auc: ", roc_auc_score(y_test, Y_pred))
+            kk +=1
+            target.append(y_test)
+            results.append(Y_pred)
+        
+
+        ## Evaluate results
+        results = np.concatenate(results)
+        target = np.concatenate(target)
+        auc = roc_auc_score(target,results)
+        print('auc: ', auc)
+
+        ## ENSEMBLES keep
+        ensemble_results, ensemble_target, ensemble_patient = keep_ensembles(ESNi, ensemble_results, results, ensemble_target, target, ensemble_patient, patient)    
+        ensemble_results = np.array(ensemble_results)
+        ensemble_target = np.concatenate(ensemble_target)
+        ensemble_patient = np.concatenate(ensemble_patient)
+        auc = roc_auc_score(ensemble_target,ensemble_results) #ensembles substitute the original auc
 
     ## Threshold study
     th_i = np.min(results)
     th_f = np.max(results)
     
     ## AUC-based CV
-    AUC_CV = False
+    AUC_CV = True
     if AUC_CV:
         th_max = 0
         f1 = 0
@@ -368,9 +394,9 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, 
         f.write(time.strftime("%Y-%m-%d %H:%M") + '\n')
         # f.write('Dataset: ' + path + '\n')
         f.write('{:03d} \t N \n'.format(N))
-        f.write('{:1.4f} \t scale \n'.format(scale))
-        f.write('{:1.4f} \t mem \n'.format(mem))
-        f.write('%1.4f \t exp\n' % sigmoid_exponent)
+        f.write('{:1.3f} \t scale \n'.format(scale))
+        f.write('{:1.3f} \t mem \n'.format(mem))
+        f.write('%1.3f \t exp\n' % sigmoid_exponent)
         f.write('(%2.4f, %2.4f, %2.4f) \t th_i, th_f, *th_sc\n' % (th_i, th_f, th_f-th_i))
         f.write('%2.4f \t th\n' % th_max)
         f.write('%2.4f \t Pr\n' % Pr)
@@ -385,9 +411,9 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, 
     print(time.strftime("%Y-%m-%d %H:%M"))
     print('Dataset: ' + path)
     print('N: {:03d}'.format(N))
-    print('scale: {:1.4f}'.format(scale))
-    print('mem: {:1.4f}'.format(mem))
-    print('exp: %1.4f' % sigmoid_exponent)
+    print('scale: {:1.3f}'.format(scale))
+    print('mem: {:1.3f}'.format(mem))
+    print('exp: %1.3f' % sigmoid_exponent)
     print('th_i, th_f, *th_sc: (%2.4f, %2.4f, %2.4f)' % (th_i, th_f, th_f-th_i))
     print('th: %2.4f' % th_max)
     print('Pr: %2.4f' % Pr)

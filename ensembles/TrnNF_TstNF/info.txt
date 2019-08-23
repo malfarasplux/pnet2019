@@ -1,0 +1,9 @@
+Ensembles applied to TrnNF_TstNF
+Code reused and modified from /pnet2019/grid_searchAB
+---------------------------------------------------------------------------------
+Aug 23
+The idea is that we train and test in the same backwards interpolation conditions 
+TrnBK_TstBK
+---------------------------------------------------------------------------------
+Gridsearch CV point code based on modifications of TrnNF_TstBK
+
