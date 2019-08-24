@@ -1,0 +1,2 @@
+We need to generate TrnNF TstBK thresholds
+Modified from pnet2019/TrnNF_TstBK/AB

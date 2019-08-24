@@ -1,0 +1,3 @@
+Prepare a TrnNF TstBK submission
+Parameters come from a TrnNFTstNF grid search
+Weights need to be obtained from a TrnNF TstBK
