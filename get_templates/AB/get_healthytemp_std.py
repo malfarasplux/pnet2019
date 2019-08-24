@@ -185,22 +185,36 @@ patient_sep, patient_sep_idx, patient_healthy_idx = get_sepsis_patients(sepsis_l
 healthy_patient_list = np.unique(patient[patient_healthy_idx])
 sep_patient_list = np.unique(patient[patient_sep_idx])
 htemplist = []
+hstdlist = []
+
 for i in range(len(healthy_patient_list)):
     i_pat = np.where(patient == i)[0]
-    htemplist.append(np.hstack((np.nanstd(feature_phys[i_pat, :], axis=0), feature_demog[i_pat[-1], :])))
-htemp = np.nanstd(htemplist, axis=0).reshape(1, -1)
+    htemplist.append(np.hstack((np.nanmean(feature_phys[i_pat, :], axis=0), feature_demog[i_pat[-1], :])))
+    hstdlist.append(np.hstack((np.nanstd(feature_phys[i_pat, :], axis=0), feature_demog[i_pat[-1], :])))
+
+htemp = np.nanmean(htemplist, axis=0).reshape(1, -1)
+hstd = np.hstack((np.nanmean(hstdlist[:-6], axis=0),np.nanstd(hstdlist[-6:]))).reshape(1, -1)
+
 htemp_phys = htemp[:, :-6]
 htemp_demog = htemp[:, -6:]
-np.savetxt(dataset + '_healthytemp_std.txt', htemp, delimiter=', ', fmt='%1.17f')
+np.savetxt(dataset + '_healthytemp.txt', htemp, delimiter=', ', fmt='%1.17f')
+np.savetxt(dataset + '_healthytemp_std.txt', hstd, delimiter=', ', fmt='%1.17f')
 
 stemplist = []
+sstdlist = []
 for i in range(len(sep_patient_list)):
     i_pat = np.where(patient == i)[0]
-    stemplist.append(np.hstack((np.nanstd(feature_phys[i_pat, :], axis=0), feature_demog[i_pat[-1], :])))
-stemp = np.nanstd(stemplist, axis=0).reshape(1, -1)
+    stemplist.append(np.hstack((np.nanmean(feature_phys[i_pat, :], axis=0), feature_demog[i_pat[-1], :])))
+    sstdlist.append(np.hstack((np.nanstd(feature_phys[i_pat, :], axis=0), feature_demog[i_pat[-1], :])))
+
+stemp = np.nanmean(stemplist, axis=0).reshape(1, -1)
+sstd = np.hstack((np.nanmean(sstdlist[:-6], axis=0),np.nanstd(sstdlist[-6:]))).reshape(1, -1)
+
 stemp_phys = stemp[:, :-6]
 stemp_demog = stemp[:, -6:]
-np.savetxt(dataset + '_septemp_std.txt', stemp, delimiter=', ', fmt='%1.17f')
+np.savetxt(dataset + '_septemp.txt', stemp, delimiter=', ', fmt='%1.17f')
+np.savetxt(dataset + '_septemp_std.txt', sstd, delimiter=', ', fmt='%1.17f')
+
 
 # patient_sep = np.zeros(len(sepsis_label),dtype=np.int)
 # for i in range(n):
