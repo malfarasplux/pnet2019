@@ -257,9 +257,11 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, N, scale, mem, si
     ensemble_patient = []    
     get_ensembles = True
     if get_ensembles:
-        ensemble_max = 10
+        ensemble_max = 30
     else:
         ensemble_max = 1
+    auc_esni = np.zeros(ensemble_max, dtype=np.float)
+    auc_add = np.zeros(ensemble_max, dtype=np.float)
     np.random.seed(seed=0)
     for ESNi in range(ensemble_max):
         print('ESN: ')
@@ -325,6 +327,13 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, N, scale, mem, si
             #ensemble_target, ensemble_patient
 
         #ensemble_results, ensemble_target, ensemble_patient = keep_ensembles(ESNi, ensemble_results, results, ensemble_target, target, ensemble_patient, patient)    
+        auc_esni[ESNi] = auc
+        auc_add[ESNi] = roc_auc_score(np.concatenate(ensemble_target),np.mean(np.array(ensemble_results), axis = 0)) #ensembles substitute the original auc
+
+        # write to auc file
+        output_file = 'rAUC_' + script_name + name_struct + '.txt'
+        np.savetxt(output_file, np.vstack((auc_esni,auc_add)), delimiter=', ', fmt='%1.4f')
+
     ensemble_target = np.concatenate(ensemble_target)
     ensemble_patient = np.concatenate(ensemble_patient)
 
@@ -373,14 +382,14 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, N, scale, mem, si
         Pr = precision_score(target, results > th_max)
         Re = recall_score(target, results > th_max)
         ACC = accuracy_score(target, results > th_max)
-        auc = roc_auc_score(target, results)
+        #auc = roc_auc_score(target, results)
         f1 = f1_score(target, results > th_max)
 
     print("**********************************************************************************************************") 
   
     user = platform.uname()[1] + '@' + platform.platform() 
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    
+
     # write to report file
     output_file = 'report_' + script_name + name_struct + '.txt'
     with open(output_file, 'w') as f:
