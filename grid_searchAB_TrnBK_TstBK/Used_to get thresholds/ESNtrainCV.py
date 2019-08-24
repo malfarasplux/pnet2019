@@ -15,14 +15,14 @@ nanfill = False
 
 ## ESN parameters
 N_def = [100]                                     # Neurons
-scale_def = [0.0001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]     # scaling
-mem_def = [1.0, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]       # memory
+scale_def = [0.0001]#, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]     # scaling
+mem_def = [1.0]#, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]       # memory
 exponent_def = 1.0                                # sigmoid exponent
 
 # Script name struct for report
 #script_name = 'ESNtrainCV'
 #name_struct_meta = "_N_scale_mem"
-#name_struct = '_{:03d}_{:1.4f}_{:1.4f}'.format(N_def, scale_def, mem_def)
+#name_struct = '_{:03d}_{:1.3f}_{:1.3f}'.format(N_def, scale_def, mem_def)
 
 ## Imports
 import numpy as np
@@ -230,7 +230,7 @@ train_index, test_index = GSK.GroupStratifiedKFold(np.hstack([patient_sep.reshap
 def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index):
     script_name = 'ESNtrainCV'
     name_struct_meta = "_N_scale_mem"
-    name_struct = '_{:03d}_{:1.4f}_{:1.4f}'.format(N, scale, mem)
+    name_struct = '_{:03d}_{:1.3f}_{:1.3f}'.format(N, scale, mem)
 
     ## ESN Generation parameters
     
@@ -248,8 +248,7 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, 
 
         for i in range(len(pat_shift)):
             patients_features = feature_matrix[pat_ipos:pat_shift[i]]
-            if i%100 ==0:
-                print("Feeding patient ", i)
+            print("Feeding patient ", i)
             for h, hour in enumerate(patients_features):
                 features = patients_features[:h+1]
                 for f in range(features.shape[1]):
