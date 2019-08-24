@@ -1,0 +1,4 @@
+Need to avoid AUC-based CV
+Need to have 2 datasets (NF, BK)
+Used to get the threshold
+Previous ESN params called

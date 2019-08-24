@@ -16,8 +16,8 @@ nanfill = True
 
 ## ESN parameters
 N_def = [100]                                     # Neurons
-scale_def = [0.001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]     # scaling
-mem_def = [0.001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]       # memory
+scale_def = [0.0001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]     # scaling
+mem_def = [1.0, 0.001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]       # memory
 exponent_def = 1.0                                # sigmoid exponent
 
 # Script name struct for report
@@ -269,6 +269,7 @@ def get_gridsearchpoint(feature_matrix, feature_matrix_test, patient, sepsis_lab
         ESN2 = np.ones((len(feature_matrix_test),N+1), dtype = np.float)    
 
         for i in range(len(pat_shift)):
+            print("Feeding ESN patient:", i)
             patients_features = feature_matrix_test[pat_ipos:pat_shift[i]]
             for h, hour in enumerate(patients_features):
                 features = patients_features[:h+1]
@@ -339,7 +340,7 @@ def get_gridsearchpoint(feature_matrix, feature_matrix_test, patient, sepsis_lab
     th_f = np.max(results)
     
     ## AUC-based CV
-    AUC_CV = True
+    AUC_CV = False
     if AUC_CV:
         th_max = 0
         f1 = 0
