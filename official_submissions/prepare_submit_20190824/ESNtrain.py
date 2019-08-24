@@ -295,50 +295,28 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, 
     th_i = np.min(results)
     th_f = np.max(results)
     
-    ## AUC-based CV
-    AUC_CV = True
-    if AUC_CV:
-        th_max = 0
-        f1 = 0
-        ACC = 0
-        Pr = 0
-        Re = 0
-    
-    else:
-        th_steps = 1000
-        th_step = (th_f-th_i)/th_steps
-        thsum = 0
-        th = np.zeros((1000, 1), dtype = np.double)
-        f1 =np.zeros((1000, 1), dtype = np.double)
-    
-        print("Threshold: Loop between ",  th_i, th_i+th_step*th_steps)
-        for i, j in enumerate(np.arange(th_i, th_f, th_step)):
-            if j < th_steps:
-                th[i] = j
-                f1[i] = f1_score(target, results > th[i])
-                thsum = thsum + th[i]
-                if i%100 == 0:
-                    print(i, th[i], f1[i])
-    
-                if f1[i] < 0.001 and np.abs(thsum) > 0:
-                    th = th[:i]
-                    f1 = f1[:i]
-                    break
-    
-        ## Max Threshold
-        th_max = th[np.argmax(f1)]
-    
-        ## Metrics
-        Pr = precision_score(target, results > th_max)
-        Re = recall_score(target, results > th_max)
-        ACC = accuracy_score(target, results > th_max)
-        auc = roc_auc_score(target, results)
-        f1 = f1_score(target, results > th_max)
+    ## Max Threshold
+    th_max = 0.1153
+
+    ## Metrics
+    Pr = precision_score(target, results > th_max)
+    Re = recall_score(target, results > th_max)
+    ACC = accuracy_score(target, results > th_max)
+    auc = roc_auc_score(target, results)
+    f1 = f1_score(target, results > th_max)
 
     
     user = platform.uname()[1] + '@' + platform.platform() 
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    
+
+    ## Write weights
+    wfile = 'w_' + script_name + name_struct + '.txt'
+    with open(wfile, 'w') as f:
+        f.write('Weights N=%d %s' % (N, "trainingAB"))
+        if dataloaded:
+            for s in w:
+                f.write('\n%g' % s)   
+                
     # write to report file
     output_file = 'report_' + script_name + name_struct + '.txt'
     with open(output_file, 'w') as f:
