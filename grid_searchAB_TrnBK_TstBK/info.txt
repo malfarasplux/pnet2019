@@ -1,3 +1,10 @@
+Aug 24
+Launched to get a full heatmap (*Cannot work with the 1000 point fine range)
+nanfill set to False --> TrnBK TstBK
+AUC-based to save time
+36min per point at GoogleCloud
+
+
 Aug 23
 The idea is that we train and test in the same backwards interpolation conditions 
 TrnBK_TstBK
