@@ -1,0 +1,15 @@
+omen@Linux-4.8.0-53-generic-x86_64-with-debian-stretch-sid
+/mnt/sda1/github/pnet2019/official_submissions/prepare_submit_20190824
+ESNtrain.py
+2019-08-24 18:30
+100 	 N 
+0.0001 	 scale 
+1.0000 	 mem 
+1.000 	 exp
+(-0.3152, 0.3381, 0.6532) 	 th_i, th_f, *th_sc
+0.1153 	 th
+0.1293 	 Pr
+0.0603 	 Re
+0.0822 	 F1
+0.9758 	 ACC
+0.7756 	 AUC

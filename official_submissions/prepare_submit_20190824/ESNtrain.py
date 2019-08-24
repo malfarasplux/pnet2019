@@ -5,7 +5,7 @@
 # biased_regress = True
 # normal_equations = True
 dataset = "training_AB"
-path = "../" + dataset +"/"
+path = "../../" + dataset +"/"
 kfold_split = 10
 nan_to_zero = True
 mm = False
@@ -159,10 +159,10 @@ if not numpy_load:
 else:
 
     
-    npyfilename = "../npy/" + dataset + "_patient.npy"
+    npyfilename = "../../npy/" + dataset + "_patient.npy"
     patient = np.load(npyfilename)
     print(npyfilename, " loaded")
-    npyfilename = "../npy/" + dataset + "_Y.npy"
+    npyfilename = "../../npy/" + dataset + "_Y.npy"
     sepsis_label = np.load(npyfilename)
     print(npyfilename, " loaded")
 
@@ -171,12 +171,12 @@ else:
         dataset = dataset + "_nanfill"    
     
     if mm:
-        npyfilename = "../npy/" + dataset + "_mm.npy"
+        npyfilename = "../../npy/" + dataset + "_mm.npy"
         mm = False
         print(npyfilename, '(mm) to be loaded')
 
     else:
-        npyfilename = "../npy/" + dataset + ".npy"
+        npyfilename = "../../npy/" + dataset + ".npy"
         print(npyfilename, '(not mm) to be loaded')
 
     n = len(np.unique(patient))

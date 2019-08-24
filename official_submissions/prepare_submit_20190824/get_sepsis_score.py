@@ -181,9 +181,9 @@ def load_sepsis_model():
     model['exponent_def'] = 1.0  # sigmoid exponent
 
     # Thresholds
-    model['th_max'] = 0.0575
-    model['th_min'] = -0.4868
-    model['th_scale'] = 17.0103
+    model['th_max'] = 0.1153
+    model['th_min'] = -1.3363
+    model['th_scale'] = 27.3891
     
     # Model functions
     model['f'] = esnt
