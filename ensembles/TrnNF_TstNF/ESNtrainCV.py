@@ -16,10 +16,10 @@ nanfill = True
 import numpy as np
 ## ESN parameters
 N_def = [100]                                     # Neurons
-#scale_def = [0.001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]   # scaling
-#mem_def = [0.001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]       # memory
-scale_def = np.linspace(0.0001, 0.025, 100)
-mem_def = np.linspace(1.0, 10, 10)
+scale_def = [0.001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]   # scaling
+mem_def = [0.001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]       # memory
+#scale_def = np.linspace(0.0001, 0.025, 100)
+#mem_def = np.linspace(1.0, 10, 10)
 
 exponent_def = 1.0                                # sigmoid exponent
 
@@ -232,13 +232,14 @@ train_index, test_index = GSK.GroupStratifiedKFold(np.hstack([patient_sep.reshap
 
 #ENSEMBLES keep function
 def keep_ensembles(i, ensemble_results, results, ensemble_target, target, ensemble_patient, patient):
+    print("Computing ensemble ",  i)
     if i==0:
         return ensemble_results.append(results), ensemble_target.append(target), ensemble_patient.append(patient)
     else: 
         return ensemble_results.append(results), ensemble_target, ensemble_patient
 
 #Gridsearch point function
-def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index):
+def get_gridsearchpoint(feature_matrix, patient, sepsis_label, N, scale, mem, sigmoid_exponent, train_index, test_index):
     script_name = 'ESNtrainCV'
     name_struct_meta = "_N_scale_mem"
     name_struct = '_{:03d}_{:1.4f}_{:1.4f}'.format(N, scale, mem)
@@ -259,14 +260,18 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, 
         ensemble_max = 10
     else:
         ensemble_max = 1
-    
+    np.random.seed(seed=0)
     for ESNi in range(ensemble_max):
         print('ESN: ')
         allocateESN = True
+        M = 2*np.random.rand(40,N)-1
+        Mb = 2*np.random.rand(1,N)-1
+
         if allocateESN: 
             ESN = np.ones((len(feature_matrix),N+1), dtype = np.float)    
             for i in range(len(pat_shift)):
-                print("Feeding ESN patient:", i)
+                if i%100 == 0:
+                    print("Feeding ESN patient:", i)
                 ESN[pat_ipos:pat_shift[i],:] = ESNtools.feedESN(feature_matrix[pat_ipos:pat_shift[i]], N, M, Mb, scale, mem, func, sigmoid_exponent)
                 pat_ipos = pat_shift[i]
                     
@@ -278,8 +283,7 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, 
                     ESN = np.vstack((ESN, ESNtools.feedESN(feature_matrix[pat_ipos:pat_shift[i]], N, M, Mb, scale, mem, func, sigmoid_exponent)))
                 pat_ipos = pat_shift[i]
             
-        del feature_matrix
-        
+               
         ## Divide in sets
         X = ESN
         y = sepsis_label
@@ -295,7 +299,7 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, 
             y_train, y_test = y[train_index[j]], y[test_index[j]]          #GSKF
             patients_id_train, patients_id_test = patient[train_index[j]], patient[test_index[j]]
             
-            w = ESNtools.get_weights_lu_biasedNE(X_train, y_train)
+            w = ESNtools.get_weights_biasedNE(X_train, y_train)
             print("Start testing...", flush=True)
             Y_pred = (np.matmul(X_test,w))
         
@@ -312,11 +316,21 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, 
         print('auc: ', auc)
 
         ## ENSEMBLES keep
-        ensemble_results, ensemble_target, ensemble_patient = keep_ensembles(ESNi, ensemble_results, results, ensemble_target, target, ensemble_patient, patient)    
-        ensemble_results = np.array(ensemble_results)
-        ensemble_target = np.concatenate(ensemble_target)
-        ensemble_patient = np.concatenate(ensemble_patient)
-        auc = roc_auc_score(ensemble_target,ensemble_results) #ensembles substitute the original auc
+        if ESNi==0:
+            ensemble_results.append(results) 
+            ensemble_target.append(target)
+            ensemble_patient.append(patient)
+        else: 
+            ensemble_results.append(results)
+            #ensemble_target, ensemble_patient
+
+        #ensemble_results, ensemble_target, ensemble_patient = keep_ensembles(ESNi, ensemble_results, results, ensemble_target, target, ensemble_patient, patient)    
+    ensemble_target = np.concatenate(ensemble_target)
+    ensemble_patient = np.concatenate(ensemble_patient)
+
+    ensemble_results = np.array(ensemble_results)
+    ensemble_results = np.mean(ensemble_results, axis = 0)
+    auc = roc_auc_score(ensemble_target,ensemble_results) #ensembles substitute the original auc
 
     ## Threshold study
     th_i = np.min(results)
@@ -362,7 +376,8 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, 
         auc = roc_auc_score(target, results)
         f1 = f1_score(target, results > th_max)
 
-    
+    print("**********************************************************************************************************") 
+  
     user = platform.uname()[1] + '@' + platform.platform() 
     dir_path = os.path.dirname(os.path.realpath(__file__))
     
@@ -410,18 +425,18 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, 
 for i_N in range(len(N_def)):
     N = N_def[i_N]           # Neurons
     ## Random seed
-    np.random.seed(seed=0)
+    #np.random.seed(seed=0)
     ## Mask parameters
-    M = 2*np.random.rand(np.shape(feature_matrix)[1],N)-1
-    Mb = 2*np.random.rand(1,N)-1
+    #M = 2*np.random.rand(np.shape(feature_matrix)[1],N)-1
+    #Mb = 2*np.random.rand(1,N)-1
 
     
     for i_scale in range(len(scale_def)):
         scale = scale_def[i_scale]   # scaling factor
         for i_mem in range(len(mem_def)):
             mem = mem_def[i_mem]       # memory
-            try:
-                get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index)
-            except:
-                print("Error at ", N, scale, mem)
-                pass
+            #try:
+            get_gridsearchpoint(feature_matrix, patient, sepsis_label, N, scale, mem, sigmoid_exponent, train_index, test_index)
+            #except:
+            print("Error at ", N, scale, mem)
+            #    pass

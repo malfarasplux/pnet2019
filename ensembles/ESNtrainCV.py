@@ -16,8 +16,8 @@ nanfill = True
 import numpy as np
 ## ESN parameters
 N_def = [100]                                     # Neurons
-scale_def = [0.001]#, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]   # scaling
-mem_def = [1]#,0.001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]       # memory
+scale_def = [0.001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]   # scaling
+mem_def = [0.001, 0.025, 0.050, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]       # memory
 #scale_def = np.linspace(0.0001, 0.025, 100)
 #mem_def = np.linspace(1.0, 10, 10)
 
@@ -299,7 +299,7 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, N, scale, mem, si
             y_train, y_test = y[train_index[j]], y[test_index[j]]          #GSKF
             patients_id_train, patients_id_test = patient[train_index[j]], patient[test_index[j]]
             
-            w = ESNtools.get_weights_lu_biasedNE(X_train, y_train)
+            w = ESNtools.get_weights_biasedNE(X_train, y_train)
             print("Start testing...", flush=True)
             Y_pred = (np.matmul(X_test,w))
         
