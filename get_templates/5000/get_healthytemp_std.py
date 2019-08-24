@@ -129,9 +129,9 @@ if not numpy_load:
     dataloaded = True
 
 else:
-    npyfilename = "../../Rui/Datasets/" + dataset + "_patient.npy"
+    npyfilename = "../npy/" + dataset + "_patient.npy"
     patient = np.load(npyfilename)
-    npyfilename = "../../Rui/Datasets/" + dataset + "_Y.npy"
+    npyfilename = "../npy/" + dataset + "_Y.npy"
     sepsis_label = np.load(npyfilename)
 
     # ADD nanfill tag
@@ -139,12 +139,12 @@ else:
         dataset = dataset + "_nanfill"
 
     if mm:
-        npyfilename = "../../Rui/Datasets/" + dataset + "_mm.npy"
+        npyfilename = "../npy/" + dataset + "_mm.npy"
         mm = False
         print(npyfilename, '(mm) to be loaded')
 
     else:
-        npyfilename = "../../Rui/Datasets/" + dataset + ".npy"
+        npyfilename = "../npy/" + dataset + ".npy"
         print(npyfilename, '(not mm) to be loaded')
 
     n = len(np.unique(patient))

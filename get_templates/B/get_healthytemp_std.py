@@ -129,9 +129,9 @@ if not numpy_load:
     dataloaded = True
 
 else:
-    npyfilename = "../../Rui/Datasets/" + dataset + "_patient.npy"
+    npyfilename = "../npy/" + dataset + "_patient.npy"
     patient = np.load(npyfilename)
-    npyfilename = "../../Rui/Datasets/" + dataset + "_Y.npy"
+    npyfilename = "../npy/" + dataset + "_Y.npy"
     sepsis_label = np.load(npyfilename)
 
     # ADD nanfill tag
@@ -139,12 +139,12 @@ else:
         dataset = dataset + "_nanfill"
 
     if mm:
-        npyfilename = "../../Rui/Datasets/" + dataset + "_mm.npy"
+        npyfilename = "../npy/" + dataset + "_mm.npy"
         mm = False
         print(npyfilename, '(mm) to be loaded')
 
     else:
-        npyfilename = "../../Rui/Datasets/" + dataset + ".npy"
+        npyfilename = "../npy/" + dataset + ".npy"
         print(npyfilename, '(not mm) to be loaded')
 
     n = len(np.unique(patient))
@@ -187,8 +187,8 @@ sep_patient_list = np.unique(patient[patient_sep_idx])
 htemplist = []
 for i in range(len(healthy_patient_list)):
     i_pat = np.where(patient == i)[0]
-    htemplist.append(np.hstack((np.nanmean(feature_phys[i_pat, :], axis=0), feature_demog[i_pat[-1], :])))
-htemp = np.nanmean(htemplist, axis=0).reshape(1, -1)
+    htemplist.append(np.hstack((np.nanstd(feature_phys[i_pat, :], axis=0), feature_demog[i_pat[-1], :])))
+htemp = np.nanstd(htemplist, axis=0).reshape(1, -1)
 htemp_phys = htemp[:, :-6]
 htemp_demog = htemp[:, -6:]
 np.savetxt(dataset + '_healthytemp_std.txt', htemp, delimiter=', ', fmt='%1.17f')
@@ -196,8 +196,8 @@ np.savetxt(dataset + '_healthytemp_std.txt', htemp, delimiter=', ', fmt='%1.17f'
 stemplist = []
 for i in range(len(sep_patient_list)):
     i_pat = np.where(patient == i)[0]
-    stemplist.append(np.hstack((np.nanmean(feature_phys[i_pat, :], axis=0), feature_demog[i_pat[-1], :])))
-stemp = np.nanmean(stemplist, axis=0).reshape(1, -1)
+    stemplist.append(np.hstack((np.nanstd(feature_phys[i_pat, :], axis=0), feature_demog[i_pat[-1], :])))
+stemp = np.nanstd(stemplist, axis=0).reshape(1, -1)
 stemp_phys = stemp[:, :-6]
 stemp_demog = stemp[:, -6:]
 np.savetxt(dataset + '_septemp_std.txt', stemp, delimiter=', ', fmt='%1.17f')
