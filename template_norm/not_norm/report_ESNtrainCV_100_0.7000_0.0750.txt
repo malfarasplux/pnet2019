@@ -1,0 +1,15 @@
+omen@Linux-4.8.0-53-generic-x86_64-with-debian-stretch-sid
+/mnt/sda1/github/pnet2019/template_norm/not_norm
+ESNtrainCV.py
+2019-08-25 00:39
+100 	 N 
+0.7000 	 scale 
+0.0750 	 mem 
+1.000 	 exp
+(-0.0743, 0.1596, 0.2339) 	 th_i, th_f, *th_sc
+0.0000 	 th
+0.0000 	 Pr
+0.0000 	 Re
+0.0000 	 F1
+0.0000 	 ACC
+0.7143 	 AUC

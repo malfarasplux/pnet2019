@@ -3,7 +3,7 @@
 
 ## Config
 dataset = "training_AB"
-path = "../" + dataset + "/"
+path = "/github/pnet2019/" + dataset + "/"
 numpy_load = True
 nanfill = False
 mm = False
@@ -129,9 +129,9 @@ if not numpy_load:
     dataloaded = True
 
 else:
-    npyfilename = "../npy/" + dataset + "_patient.npy"
+    npyfilename = "/github/pnet2019/npy/" + dataset + "_patient.npy"
     patient = np.load(npyfilename)
-    npyfilename = "../npy/" + dataset + "_Y.npy"
+    npyfilename = "/github/pnet2019/npy/" + dataset + "_Y.npy"
     sepsis_label = np.load(npyfilename)
 
     # ADD nanfill tag
@@ -139,12 +139,12 @@ else:
         dataset = dataset + "_nanfill"
 
     if mm:
-        npyfilename = "../npy/" + dataset + "_mm.npy"
+        npyfilename = "/github/pnet2019/npy/" + dataset + "_mm.npy"
         mm = False
         print(npyfilename, '(mm) to be loaded')
 
     else:
-        npyfilename = "../npy/" + dataset + ".npy"
+        npyfilename = "/github/pnet2019/npy/" + dataset + ".npy"
         print(npyfilename, '(not mm) to be loaded')
 
     n = len(np.unique(patient))
@@ -193,7 +193,8 @@ for i in range(len(healthy_patient_list)):
     hstdlist.append(np.hstack((np.nanstd(feature_phys[i_pat, :], axis=0), feature_demog[i_pat[-1], :])))
 
 htemp = np.nanmean(htemplist, axis=0).reshape(1, -1)
-hstd = np.hstack((np.nanmean(hstdlist[:-6], axis=0),np.nanstd(hstdlist[-6:]))).reshape(1, -1)
+hstd_array = np.asarray(hstdlist)
+hstd = np.hstack((np.nanmean(hstd_array[:,:-6], axis=0),np.nanstd(hstd_array[:,-6:], axis = 0))).reshape(1, -1)
 
 htemp_phys = htemp[:, :-6]
 htemp_demog = htemp[:, -6:]
@@ -208,7 +209,8 @@ for i in range(len(sep_patient_list)):
     sstdlist.append(np.hstack((np.nanstd(feature_phys[i_pat, :], axis=0), feature_demog[i_pat[-1], :])))
 
 stemp = np.nanmean(stemplist, axis=0).reshape(1, -1)
-sstd = np.hstack((np.nanmean(sstdlist[:-6], axis=0),np.nanstd(sstdlist[-6:]))).reshape(1, -1)
+sstd_array = np.asarray(sstdlist)
+sstd = np.hstack((np.nanmean(sstd_array[:,:-6], axis=0),np.nanstd(sstd_array[:,-6:], axis = 0))).reshape(1, -1)
 
 stemp_phys = stemp[:, :-6]
 stemp_demog = stemp[:, -6:]

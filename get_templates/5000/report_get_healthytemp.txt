@@ -1,5 +1,5 @@
 omen@Linux-4.8.0-53-generic-x86_64-with-debian-stretch-sid
 /mnt/sda1/github/pnet2019/get_templates/5000
 get_healthytemp_std.py
-2019-08-24 15:53
-Dataset: ../training_1/
+2019-08-25 04:03
+Dataset: /github/pnet2019/training_1/
