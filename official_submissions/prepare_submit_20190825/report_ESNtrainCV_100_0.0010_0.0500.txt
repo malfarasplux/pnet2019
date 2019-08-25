@@ -1,0 +1,15 @@
+b4fb4eff8174@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
+/github/pnet2019/official_submissions/prepare_submit_20190825
+ESNtrainCV.py
+2019-08-25 15:22
+100 	 N 
+0.0010 	 scale 
+0.0500 	 mem 
+1.000 	 exp
+(-0.5082, 27.7723, 28.2805) 	 th_i, th_f, *th_sc
+0.0000 	 th
+0.0000 	 Pr
+0.0000 	 Re
+0.0000 	 F1
+0.0000 	 ACC
+0.7296 	 AUC
