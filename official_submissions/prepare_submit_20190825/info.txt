@@ -1,0 +1,6 @@
+v1
+Improve submission 1 conditions
+code modified from /github/pnet2019/official_submissions/prepare_submit_20190820
+Full path to AB
+Nanfill is none
+gridsearch loop strategy copied from later gridsearcg ESNtrainCV.py
