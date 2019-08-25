@@ -3,7 +3,7 @@
 
 ## Config
 dataset = "training_AB"
-path = "../" + dataset +"/"
+path = "/github/pnet2019/" + dataset +"/"
 kfold_split = 10
 nan_to_neg = False
 nan_to_zero = True
@@ -18,7 +18,7 @@ nanfill = False
 ## ESN parameters
 N_def = 100           # Neurons
 scale_def = 0.001     # scaling
-mem_def = 0.1         # memory
+mem_def = 2.5         # memory
 exponent_def = 1.0    # sigmoid exponent
 
 # Script name struct for report
@@ -156,10 +156,10 @@ if not numpy_load:
 else:
 
     
-    npyfilename = "../npy/" + dataset + "_patient.npy"
+    npyfilename = "/github/pnet2019/npy/" + dataset + "_patient.npy"
     patient = np.load(npyfilename)
     print(npyfilename, " loaded")
-    npyfilename = "../npy/" + dataset + "_Y.npy"
+    npyfilename = "/github/pnet2019/npy/" + dataset + "_Y.npy"
     sepsis_label = np.load(npyfilename)
     print(npyfilename, " loaded")
 
@@ -168,12 +168,12 @@ else:
         dataset = dataset + "_nanfill"    
     
     if mm:
-        npyfilename = "../npy/" + dataset + "_mm.npy"
+        npyfilename = "/github/pnet2019/npy/" + dataset + "_mm.npy"
         mm = False
         print(npyfilename, '(mm) to be loaded')
 
     else:
-        npyfilename = "../npy/" + dataset + ".npy"
+        npyfilename = "/github/pnet2019/npy/" + dataset + ".npy"
         print(npyfilename, '(not mm) to be loaded')
 
     n = len(np.unique(patient))

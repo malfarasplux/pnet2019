@@ -1,0 +1,15 @@
+921a0527e15d@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
+/github/pnet2019/official_submissions/prepare_submit_20190825
+ESNtrain.py
+2019-08-25 17:28
+Dataset: /github/pnet2019/training_AB/
+100 	 N 
+0.001 	 scale 
+2.500 	 mem 
+1.000 	 exp
+0.0629 	 th
+0.1182 	 Pr
+0.2415 	 Re
+0.1587 	 F1
+0.9540 	 ACC
+0.7459 	 AUC
