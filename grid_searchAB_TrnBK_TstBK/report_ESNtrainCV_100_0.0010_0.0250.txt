@@ -1,15 +1,15 @@
 26899606cb67@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
 /github/pnet2019/grid_searchAB_TrnBK_TstBK
 ESNtrainCV.py
-2019-08-24 19:01
+2019-08-25 11:38
 100 	 N 
-0.0001 	 scale 
+0.0010 	 scale 
 0.0250 	 mem 
 1.0000 	 exp
-(-0.4647, 88.6473, 89.1119) 	 th_i, th_f, *th_sc
+(-0.6178, 32.7940, 33.4118) 	 th_i, th_f, *th_sc
 0.0000 	 th
 0.0000 	 Pr
 0.0000 	 Re
 0.0000 	 F1
 0.0000 	 ACC
-0.7384 	 AUC
+0.7267 	 AUC
