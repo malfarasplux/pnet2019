@@ -379,7 +379,7 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, 
     
 
 ##Load healthy template
-healthy = np.genfromtxt("/github/pnet2019/get_templates/5000/training_1_healthytemp.txt", delimiter = ',')
+healthy = np.genfromtxt("/github/pnet2019/get_templates/AB/training_AB_healthytemp.txt", delimiter = ',')
 feature_matrix = feature_matrix - healthy
 
 ##Choose a few features

@@ -1,15 +1,15 @@
 a2e8464589fd@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
 /github/pnet2019/template_norm/AB/subtract
 ESNtrainCV.py
-2019-08-25 09:38
+2019-08-25 15:07
 100 	 N 
 0.0010 	 scale 
 0.2000 	 mem 
 1.000 	 exp
-(-0.5409, 17.9117, 18.4526) 	 th_i, th_f, *th_sc
+(-0.5604, 17.8642, 18.4246) 	 th_i, th_f, *th_sc
 0.0000 	 th
 0.0000 	 Pr
 0.0000 	 Re
 0.0000 	 F1
 0.0000 	 ACC
-0.7362 	 AUC
+0.7361 	 AUC
