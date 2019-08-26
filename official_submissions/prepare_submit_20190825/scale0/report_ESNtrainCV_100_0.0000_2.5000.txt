@@ -1,15 +1,15 @@
-921a0527e15d@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
-/github/pnet2019/official_submissions/prepare_submit_20190825/scale0
+omen@Linux-4.8.0-53-generic-x86_64-with-debian-stretch-sid
+/mnt/sda1/github/pnet2019/official_submissions/prepare_submit_20190825/scale0
 ESNtrainCV0.py
-2019-08-25 16:59
+2019-08-25 18:41
 100 	 N 
 0.0000 	 scale 
 2.5000 	 mem 
 1.000 	 exp
 (-0.9345, 0.9236, 1.8581) 	 th_i, th_f, *th_sc
-0.0000 	 th
-0.0000 	 Pr
-0.0000 	 Re
-0.0000 	 F1
-0.0000 	 ACC
+0.0559 	 th
+0.1093 	 Pr
+0.2783 	 Re
+0.1569 	 F1
+0.9462 	 ACC
 0.7396 	 AUC

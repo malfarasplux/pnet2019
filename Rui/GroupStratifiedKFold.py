@@ -2,25 +2,25 @@ import numpy as np
 from os import listdir
 
 
-path = "D:\Physionet Challenge\old_data\\"
-# path = r"D:\Physionet Challenge\GitHub\pnet2019\training\\"
+# path = "D:\Physionet Challenge\old_data\\"
+path = r"D:\Physionet Challenge\GitHub\pnet2019\training\\"
 
 
 def generate_new_dataset(path, name='new_dataset_AB.npy'):
     '''
-	This function generates a npy file with the data present in the files in path.
-	The generated npy are (in terms of columns): features, label of sample, label of patient, patient ID.
-	
-	:params:
-	    path: (str)
-		    path to the folder containing the psv files.
-		name: (str)
-		    name of the generated npy file.
-	'''
+    This function generates a npy file with the data present in the files in path.
+    The generated npy are (in terms of columns): features, label of sample, label of patient, patient ID.
+    
+    :params:
+        path: (str)
+            path to the folder containing the psv files.
+        name: (str)
+            name of the generated npy file.
+    '''
     dataset = np.zeros(shape=(1, 43))
     for i, file in enumerate(listdir(path)):
         print(i)
-        if True: #'p1' in file:
+        if '.psv' in file: #'p1' in file:
             with open(path+file, 'r') as f:
                 header = f.readline().strip()
                 column_names = header.split('|')
@@ -137,7 +137,7 @@ def GroupStratifiedKFold(dataset, n_split=10):
            np.array([np.concatenate([test_healthy[i], test_sepsis[i]]) for i in range(n_split)])
 
 
-# generate_new_dataset(path, 'new_dataset_B.npy')
+# generate_new_dataset(path, 'new_dataset_AB.npy')
 # dataset = np.load('D:\Physionet Challenge\GitHub\pnet2019\Rui\Datasets\dataset_A_mean_subs.npy')
 # train_indexes, test_indexes = GroupStratifiedKFold(dataset, 10)
 

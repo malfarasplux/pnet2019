@@ -409,7 +409,7 @@ for N in N_def_list:
                     print('ACC: %2.4f' % ACC)
                     print('AUC: %2.4f' % auc)
 
-                    ## Write results
+                    # Write results
                     # write to report file
                     # res = 'res_' + script_name + name_struct + '.out'
                     # with open(res, 'w') as f:

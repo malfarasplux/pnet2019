@@ -4,17 +4,24 @@ from iterative_interpolation import *
 from GroupStratifiedKFold import GroupStratifiedKFold
 import multiprocessing
 from ESNtools import *
+import time
+from sklearn.neighbors import KNeighborsClassifier
 
 
 def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id, patients_id_samples, ESN, res,
-                     y_test_all, backward_interpolation, acc, f1, auc, return_dict, num):
-    print("TRAIN:", train_index, "TEST:", test_index)
+                     y_test_all, backward_interpolation, acc, f1, auc, return_dict, num, n_estimators, classifier):
+    print("\nTRAIN:", train_index, "TEST:", test_index)
     # X_train, X_test = np.nan_to_num(X[train_index]), np.nan_to_num(X[test_index])
     y_train, y_test = y_interp[train_index], y_interp[test_index]
     patients_id_train, patients_id_test = patients_id[train_index], patients_id[test_index]
 
-    elf = GradientBoostingClassifier(n_estimators=200, loss = 'exponential')
-    # elf = RandomForestClassifier(n_estimators=1, n_jobs=-1)
+    print(classifier)
+    if classifier == 'GB':
+        elf = GradientBoostingClassifier(n_estimators=n_estimators)
+    elif classifier == 'RF':
+        elf = RandomForestClassifier(n_estimators=n_estimators)
+    else:
+        elf = KNeighborsClassifier(weights='distance')
 
     print("Start training...", flush=True)
 
@@ -40,11 +47,11 @@ def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id
                 aux_pred.append(pred)
                 aux_result.append(results)
     else:
-        print("Regular Running.", flush=True)
+        print("\n Regular Running.", flush=True)
         pred = elf.predict_proba(ESN[test_index])[:, 1]
         results = elf.predict(ESN[test_index])
 
-    print("Finished Testing.\n Next!", flush=True)
+    print("\nFinished Testing.\n Next!", flush=True)
 
     res.append(pred)
     y_test_all.append(y_test)
@@ -75,15 +82,19 @@ def threshold_optimization(step, res, y_test_all):
 
 
 # @njit(debug=True)
-def build_ESN(patients_id, X, N, ESN, feedESN):
-    patients_id_samples = []
+def build_ESN(patients_id, X, N, ESN, feedESN, patients_id_samples):
     for id_ in np.unique(patients_id):
-        patients_id_samples.append(np.where(patients_id == id_)[0])
         features_patient = X[patients_id_samples[id_]]
         ESN[patients_id_samples[id_], :] = 0
-        np.array(feedESN(features_patient, N, scale=.001, mem=.1, func=sigmoid, f_arg=10,
-                                                  silent=True))
-    return patients_id_samples, ESN
+        np.array(feedESN(features_patient, N, scale=.001, mem=.1, func=sigmoid, f_arg=10, silent=True))
+    return ESN
+
+
+def build_patients_id_samples(patients_id):
+    patients_id_samples = []
+    for i, id_ in enumerate(np.unique(patients_id)):
+        patients_id_samples.append(np.where(patients_id == id_)[0])
+    return patients_id_samples
 
 
 if __name__ == '__main__':
@@ -92,73 +103,123 @@ if __name__ == '__main__':
 
     print("Loading datasets...", flush=True)
 
-    dataset_interp = np.nan_to_num(np.load('./Datasets/training_setA_nanfill.npy'))
-    dataset = np.load('./Datasets/training_setA.npy')
-    patients_id = np.load('./Datasets/training_setA_patient.npy')
-    labels, patients_labels = np.load('./Datasets/dataset_A_mean_subs.npy').T[-3:-1]
+    data = np.nan_to_num(np.load('./Datasets/new_dataset_AB.npy'))
+    dataset = data[:, :40]
+    patients_id = data[:, -1]
+    labels, patients_labels = data[:, -3:-1].T
 
-    print("Group Stratified K Fold...", flush=True)
+    # dataset = np.load('./Datasets/training_setA.npy')
+    dataset_interp = np.zeros(np.shape(dataset))
+    # dataset_interp = np.nan_to_num(np.load('./Datasets/training_setA_nanfill.npy'))
+    # patients_id = np.load('./Datasets/training_setA_patient.npy')
+    # labels, patients_labels = np.load('./Datasets/dataset_A_mean_subs.npy').T[-3:-1]
+
+    print("\nGroup Stratified K Fold...", flush=True)
 
     train_index, test_index = GroupStratifiedKFold(np.hstack(
         [dataset, labels.reshape(-1, 1), patients_labels.reshape(-1, 1), patients_id.reshape(-1, 1)]), 10)
 
-    X = np.nan_to_num(dataset[:, :-1])
+    X = dataset
     X_interp = dataset_interp[:, :-1]
     y_interp = labels
 
+    ESN = X
+
     acc, f1, auc, res, y_test_all = [], [], [], [], []
 
-    # Build the Net
-    N = 100
-    ESN = np.zeros((X_interp.shape[0], N + 1))
+    print("\nBuilding patients_id_samples", flush=True)
 
-    patients_id_samples, ESN = build_ESN(patients_id, X, N, ESN, feedESN)
+    patients_id_samples = build_patients_id_samples(patients_id)
 
-    print("Start Cross Validation...", flush=True)
+    for ESN_bool in [False, True]:
+        if ESN_bool:
+            # Build the Net
+            N = 100
+            ESN = np.zeros((X_interp.shape[0], N + 1))
 
-    manager = multiprocessing.Manager()
-    return_dict = manager.dict()
+            ESN = build_ESN(patients_id, X, N, ESN, feedESN, patients_id_samples)
 
-    for i in range(len(train_index)):
-        p = multiprocessing.Process(
-            target=cross_validation,
-            args=(train_index[i], test_index[i], X_interp, X, y_interp, patients_id, patients_id_samples, ESN, res,
-                  y_test_all, backward_interpolation, acc, f1, auc, return_dict, i))
 
-        processes.append(p)
-        p.start()
 
-    for process in processes:
-        process.join()
+        print("\nStart Cross Validation...", flush=True)
 
-    for j in range(len(train_index)):
-        res.append(return_dict['res' + str(j)])
-        y_test_all.append(return_dict['y_test_all' + str(j)])
-    manager.shutdown()
+        n_estimators = 200
+        classifiers = ['GB', 'RF', 'kNN'][::-1]
 
-    res = np.concatenate(res)
-    y_test_all = np.concatenate(y_test_all)
+        for classifier in classifiers:
+            manager = multiprocessing.Manager()
+            return_dict = manager.dict()
+            for i in range(len(train_index)):
+                p = multiprocessing.Process(
+                    target=cross_validation,
+                    args=(train_index[i], test_index[i], X_interp, X, y_interp, patients_id, patients_id_samples, ESN, res,
+                          y_test_all, backward_interpolation, acc, f1, auc, return_dict, i, n_estimators, classifier))
 
-    print(res.shape)
-    print(y_test_all.shape)
+                processes.append(p)
+                p.start()
 
-    fpr, tpr, thresholds = roc_curve(y_test_all, res, pos_label=1)
+            for process in processes:
+                process.join()
 
-    threshold = 0
-    step = 0.001
+            for j in range(len(train_index)):
+                res.append(return_dict['res' + str(j)])
+                y_test_all.append(return_dict['y_test_all' + str(j)])
+            manager.shutdown()
 
-    res, y_test_all, new_results, accuracy, f1_score_list = threshold_optimization(step, res, y_test_all)
-    print(accuracy_score(y_test_all, new_results))
-    print(f1_score(y_test_all, new_results))
+            res = np.concatenate(res)
+            y_test_all = np.concatenate(y_test_all)
 
-    new_threshold = np.array(f1_score_list).argmax() * step
-    print("Threshold:", new_threshold, flush=True)
+            print(res.shape)
+            print(y_test_all.shape)
 
-    new_results = np.zeros(len(res))
-    new_results[np.where(res > new_threshold)[0]] = 1
-    new_results[np.where(res <= new_threshold)[0]] = 0
+            fpr, tpr, thresholds = roc_curve(y_test_all, res, pos_label=1)
 
-    acc.append(accuracy_score(y_test_all, new_results))
-    f1.append(f1_score(y_test_all, new_results))
-    print("Accuracy th: ", accuracy_score(y_test_all, new_results), flush=True)
-    print("F1-Score th: ", f1_score(y_test_all, new_results), flush=True)
+            threshold = 0
+            step = 0.001
+
+            res, y_test_all, new_results, accuracy, f1_score_list = threshold_optimization(step, res, y_test_all)
+            print(accuracy_score(y_test_all, new_results))
+            print(f1_score(y_test_all, new_results))
+
+            new_threshold = np.array(f1_score_list).argmax() * step
+            print("\nThreshold:", new_threshold, flush=True)
+
+            new_results = np.zeros(len(res))
+            new_results[np.where(res > new_threshold)[0]] = 1
+            new_results[np.where(res <= new_threshold)[0]] = 0
+
+            acc.append(accuracy_score(y_test_all, new_results))
+            f1.append(f1_score(y_test_all, new_results))
+
+            print("\nAccuracy th: ", accuracy_score(y_test_all, new_results), flush=True)
+            print("F1-Score th: ", f1_score(y_test_all, new_results), flush=True)
+
+            Pr = precision_score(y_test_all, new_results)
+            Re = recall_score(y_test_all, new_results)
+            ACC = accuracy_score(y_test_all, new_results)
+            f1 = f1_score(y_test_all, new_results)
+            auc = roc_auc_score(y_test_all, res)
+
+            # write to report file
+            output_file = './Results/report_' + str(n_estimators) + '_' + classifier + '_'+ 'ESN_bool' + '.txt'
+            with open(output_file, 'w') as f:
+                f.write(__file__ + '\n')
+                f.write(time.strftime("%Y-%m-%d %H:%M") + '\n')
+                f.write('Dataset: new_dataset_AB.npy')
+                f.write('Using ESN: ' + str(ESN_bool))
+                f.write('(%2.4f) \t threshold\n' % threshold)
+                f.write('%2.4f \t Pr\n' % Pr)
+                f.write('%2.4f \t Re\n' % Re)
+                f.write('%2.4f \t F1\n' % f1)
+                f.write('%2.4f \t ACC\n' % ACC)
+                f.write('%2.4f \t AUC\n' % auc)
+
+            print(time.strftime("%Y-%m-%d %H:%M"))
+            print('\nDataset: new_dataset_AB.npy')
+            print('Using ESN: ' + str(ESN_bool))
+            print('(%2.4f) \t threshold\n' % threshold)
+            print('Pr: %2.4f' % Pr)
+            print('Re: %2.4f' % Re)
+            print('F1: %2.4f' % f1)
+            print('ACC: %2.4f' % ACC)
+            print('AUC: %2.4f' % auc)
