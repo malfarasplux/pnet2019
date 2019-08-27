@@ -21,7 +21,7 @@ def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id
     elif classifier == 'RF':
         elf = RandomForestClassifier(n_estimators=n_estimators)
     else:
-        elf = KNeighborsClassifier(weights='distance')
+        elf = KNeighborsClassifier(weights='distance', n_jobs=1)
 
     print("Start training...", flush=True)
 
@@ -48,8 +48,11 @@ def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id
                 aux_result.append(results)
     else:
         print("\n Regular Running.", flush=True)
-        pred = elf.predict_proba(ESN[test_index])[:, 1]
+        #pred = elf.predict_proba(ESN[test_index])[:, 1]
         results = elf.predict(ESN[test_index])
+        pred = elf.predict_proba(ESN[test_index])
+        if len(np.shape(pred)) == 2:
+            pred = pred[:, 1]
 
     print("\nFinished Testing.\n Next!", flush=True)
 
@@ -103,16 +106,22 @@ if __name__ == '__main__':
 
     print("Loading datasets...", flush=True)
 
-    data = np.nan_to_num(np.load('./Datasets/new_dataset_AB.npy'))
-    dataset = data[:, :40]
-    patients_id = data[:, -1]
-    labels, patients_labels = data[:, -3:-1].T
+    # data = np.nan_to_num(np.load('./Datasets/new_dataset_AB.npy'))
+    # dataset = data[:, :40]
+    # patients_id = data[:, -1]
+    # labels, patients_labels = data[:, -3:-1].T
 
-    # dataset = np.load('./Datasets/training_setA.npy')
-    dataset_interp = np.zeros(np.shape(dataset))
-    # dataset_interp = np.nan_to_num(np.load('./Datasets/training_setA_nanfill.npy'))
-    # patients_id = np.load('./Datasets/training_setA_patient.npy')
-    # labels, patients_labels = np.load('./Datasets/dataset_A_mean_subs.npy').T[-3:-1]
+    dataset = np.nan_to_num(np.load('./Datasets/training_AB.npy'))
+    #dataset_interp = np.zeros(np.shape(dataset))
+    dataset_interp = dataset # np.nan_to_num(np.load('./Datasets/training_AB_nanfill.npy'))
+    patients_id = np.load('./Datasets/training_AB_patient.npy')
+    labels = np.concatenate(np.load('./Datasets/training_AB_Y.npy'))
+    patients_labels = np.zeros(np.shape(labels))
+
+    for id_ in np.unique(patients_id):
+        index = np.where(patients_id==id_)[0]
+        if 1 in labels[index]:
+            patients_labels[id_] = np.ones(np.shape(labels[id_]))
 
     print("\nGroup Stratified K Fold...", flush=True)
 
@@ -144,7 +153,7 @@ if __name__ == '__main__':
         print("\nStart Cross Validation...", flush=True)
 
         n_estimators = 200
-        classifiers = ['GB', 'RF', 'kNN'][::-1]
+        classifiers = ['GB', 'RF', 'kNN']
 
         for classifier in classifiers:
             manager = multiprocessing.Manager()
