@@ -1,0 +1,3 @@
+Gridsearch code relaunched Aug 27 to obtain 
+a full gridsearch AB with the None None interpolate condition
+Code modified from /github/pnet2019/prepare_submit_20190820/
