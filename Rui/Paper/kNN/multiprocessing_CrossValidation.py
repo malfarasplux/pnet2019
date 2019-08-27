@@ -203,9 +203,9 @@ if __name__ == '__main__':
             with open(output_file, 'w') as f:
                 f.write(__file__ + '\n')
                 f.write(time.strftime("%Y-%m-%d %H:%M") + '\n')
-                f.write('Dataset: new_dataset_AB.npy')
-                f.write('Using ESN: ' + str(ESN_bool))
-                f.write('(%2.4f) \t threshold\n' % threshold)
+                f.write('Dataset: new_dataset_AB.npy\n')
+                f.write('Using ESN: ' + str(ESN_bool) + '\n')
+                f.write('(%2.4f) \t threshold\n' % new_threshold)
                 f.write('%2.4f \t Pr\n' % Pr)
                 f.write('%2.4f \t Re\n' % Re)
                 f.write('%2.4f \t F1\n' % f1)
@@ -214,8 +214,8 @@ if __name__ == '__main__':
 
             print(time.strftime("%Y-%m-%d %H:%M"))
             print('\nDataset: new_dataset_AB.npy')
-            print('Using ESN: ' + str(ESN_bool))
-            print('(%2.4f) \t threshold\n' % threshold)
+            print('Using ESN: ' + str(ESN_bool) + '\n')
+            print('(%2.4f) \t threshold\n' % new_threshold)
             print('Pr: %2.4f' % Pr)
             print('Re: %2.4f' % Re)
             print('F1: %2.4f' % f1)

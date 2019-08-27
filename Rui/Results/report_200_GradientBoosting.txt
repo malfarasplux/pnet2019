@@ -1,7 +1,0 @@
-2019-08-26 15:37
-Dataset: new_dataset_AB.npy(0.0000) 	 threshold
-0.0684 	 Pr
-0.0859 	 Re
-0.0762 	 F1
-0.9625 	 ACC
-0.5322 	 AUC
