@@ -1,6 +1,5 @@
 from sklearn.metrics import accuracy_score, f1_score, roc_auc_score, precision_score, recall_score, roc_curve
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
-from iterative_interpolation import *
 from GroupStratifiedKFold import GroupStratifiedKFold
 import multiprocessing
 from ESNtools import *
@@ -21,7 +20,7 @@ def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id
     elif classifier == 'RF':
         elf = RandomForestClassifier(n_estimators=n_estimators)
     else:
-        elf = KNeighborsClassifier(weights='distance', n_jobs=1)
+        elf = KNeighborsClassifier()
 
     print("Start training...", flush=True)
 
@@ -111,11 +110,11 @@ if __name__ == '__main__':
     # patients_id = data[:, -1]
     # labels, patients_labels = data[:, -3:-1].T
 
-    dataset = np.nan_to_num(np.load('./Datasets/training_AB.npy'))
+    dataset = np.nan_to_num(np.load('../../Datasets/training_AB.npy'))
     #dataset_interp = np.zeros(np.shape(dataset))
     dataset_interp = dataset # np.nan_to_num(np.load('./Datasets/training_AB_nanfill.npy'))
-    patients_id = np.load('./Datasets/training_AB_patient.npy')
-    labels = np.concatenate(np.load('./Datasets/training_AB_Y.npy'))
+    patients_id = np.load('../../Datasets/training_AB_patient.npy')
+    labels = np.concatenate(np.load('../../Datasets/training_AB_Y.npy'))
     patients_labels = np.zeros(np.shape(labels))
 
     for id_ in np.unique(patients_id):
@@ -140,7 +139,7 @@ if __name__ == '__main__':
 
     patients_id_samples = build_patients_id_samples(patients_id)
 
-    for ESN_bool in [False, True]:
+    for ESN_bool in [False]:
         if ESN_bool:
             # Build the Net
             N = 100
@@ -153,7 +152,7 @@ if __name__ == '__main__':
         n_estimators = 200
         classifiers = ['GB', 'RF', 'kNN']
         return_dict = {}
-        classifiers = ['RF']
+        classifiers = ['kNN']
 
         for classifier in classifiers:
             for i in range(len(train_index)):
@@ -205,7 +204,7 @@ if __name__ == '__main__':
                 f.write(__file__ + '\n')
                 f.write(time.strftime("%Y-%m-%d %H:%M") + '\n')
                 f.write('Dataset: new_dataset_AB.npy\n')
-                f.write('Using ESN: ' + str(ESN_bool) +'\n')
+                f.write('Using ESN: ' + str(ESN_bool) + '\n')
                 f.write('(%2.4f) \t threshold\n' % new_threshold)
                 f.write('%2.4f \t Pr\n' % Pr)
                 f.write('%2.4f \t Re\n' % Re)
@@ -215,7 +214,7 @@ if __name__ == '__main__':
 
             print(time.strftime("%Y-%m-%d %H:%M"))
             print('\nDataset: new_dataset_AB.npy')
-            print('Using ESN: ' + str(ESN_bool))
+            print('Using ESN: ' + str(ESN_bool) + '\n')
             print('(%2.4f) \t threshold\n' % new_threshold)
             print('Pr: %2.4f' % Pr)
             print('Re: %2.4f' % Re)
