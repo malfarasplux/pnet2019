@@ -1,0 +1,15 @@
+omen@Linux-4.8.0-53-generic-x86_64-with-debian-stretch-sid
+/mnt/sda1/github/pnet2019/grid_search_loop/Neurons/tr5000_N50
+ESNtrainCV.py
+2019-08-28 16:59
+050 	 N 
+0.025 	 scale 
+1.750 	 mem 
+1.000 	 exp
+(-0.0461, 0.1652, 0.2113) 	 th_i, th_f, *th_sc
+0.0000 	 th
+0.0000 	 Pr
+0.0000 	 Re
+0.0000 	 F1
+0.0000 	 ACC
+0.7385 	 AUC
