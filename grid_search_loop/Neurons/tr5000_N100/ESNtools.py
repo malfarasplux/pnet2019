@@ -97,8 +97,8 @@ def feedESN(features, neurons, mask, mask_bias, scale, mem, func, f_arg):
     """
     
     ESN = np.hstack((np.matmul(features, mask), np.ones((np.shape(features)[0],1), dtype=np.double)))
-    print(np.shape(ESN))
-    print(np.min(ESN), np.max(ESN))
+    #print(np.shape(ESN))
+    #print(np.min(ESN), np.max(ESN))
     p = np.zeros((1,neurons),dtype=np.double)
 
     for i in range(np.shape(features)[0]):
