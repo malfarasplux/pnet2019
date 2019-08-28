@@ -7,7 +7,7 @@
 dataset = "training_AB"
 path = "/github/pnet2019/" + dataset +"/"
 kfold_split = 10
-nan_to_zero = True
+nan_to_zero = False
 mm = False
 std = False
 numpy_load = True
