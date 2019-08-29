@@ -1,0 +1,10 @@
+RF_multiprocessing_CrossValidation.py
+2019-08-28 11:47
+Dataset: new_dataset_AB.npy
+Using ESN: False
+(0.1290) 	 threshold
+0.1230 	 Pr
+0.2651 	 Re
+0.1680 	 F1
+0.9528 	 ACC
+0.7721 	 AUC
