@@ -1,0 +1,10 @@
+D:\PhysionetChallenge\GitHub\pnet2019\Rui\Paper\DT\multiprocessing_CrossValidation.py
+2019-08-29 10:12
+Dataset: new_dataset_AB.npy
+Using ESN: False
+(0.6670) 	 threshold
+0.0718 	 Pr
+0.1132 	 Re
+0.0878 	 F1
+0.9577 	 ACC
+0.5433 	 AUC

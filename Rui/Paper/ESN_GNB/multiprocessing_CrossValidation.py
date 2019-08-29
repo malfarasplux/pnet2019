@@ -5,7 +5,7 @@ import multiprocessing
 from ESNtools import *
 import time
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import GaussianNB #BernoulliNB  as 
 from sklearn.tree import DecisionTreeClassifier
 
 
@@ -66,6 +66,8 @@ def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id
 
     acc.append(accuracy_score(results, y_test))
     f1.append(f1_score(results, y_test))
+    print("Any pred NAN? ", np.isnan(pred).any())
+    gfgfs
     auc.append(roc_auc_score(y_test, pred))
 
     print("Accuracy: ", accuracy_score(results, y_test), flush=True)
@@ -93,8 +95,7 @@ def threshold_optimization(step, res, y_test_all):
 def build_ESN(patients_id, X, N, ESN, feedESN, patients_id_samples):
     for id_ in np.unique(patients_id):
         features_patient = X[patients_id_samples[id_]]
-        ESN[patients_id_samples[id_], :] = 0
-        np.array(feedESN(features_patient, N, scale=.001, mem=.1, func=sigmoid, f_arg=10, silent=True))
+        ESN[patients_id_samples[id_], :] = np.array(feedESN(features_patient, N, scale=.0001, mem=1, func=sigmoid, f_arg=1, silent=True))
     return ESN
 
 
@@ -176,7 +177,7 @@ if __name__ == '__main__':
             print(res.shape)
             print(y_test_all.shape)
 
-            fpr, tpr, thresholds = roc_curve(y_test_all, res, pos_label=1)
+            #fpr, tpr, thresholds = roc_curve(y_test_all, res, pos_label=1)
 
             threshold = 0
             step = 0.001

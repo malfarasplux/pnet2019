@@ -93,8 +93,7 @@ def threshold_optimization(step, res, y_test_all):
 def build_ESN(patients_id, X, N, ESN, feedESN, patients_id_samples):
     for id_ in np.unique(patients_id):
         features_patient = X[patients_id_samples[id_]]
-        ESN[patients_id_samples[id_], :] = 0
-        np.array(feedESN(features_patient, N, scale=.001, mem=.1, func=sigmoid, f_arg=10, silent=True))
+        ESN[patients_id_samples[id_], :] = np.array(feedESN(features_patient, N, scale=.0001, mem=1, func=sigmoid, f_arg=1, silent=True))
     return ESN
 
 
