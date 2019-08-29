@@ -15,7 +15,7 @@ labels = np.load("./Datasets/training_AB_Y.npy")
 # ','PTT','WBC','Fibrinogen','Platelets','Age','Gender','Unit1','Unit2','HospAdmTime','ICULOS','SepsisLabel']
 
 indexes = {'HR': 0, 'Temp': 2,'SBP': 3, 'Resp': 6, 'etCO2': 7, 'WBC': 31}
-limits = {'SBP': 100, 'Resp': 22, 'WBC': [4000, 12000], 'etCO2': 32, 'HR': 90, 'Temp': [36, 38]}
+limits = {'SBP': 100, 'Resp': 22, 'WBC': [4, 12], 'etCO2': 32, 'HR': 90, 'Temp': [36, 38]}
 
 hr = dataset[:, indexes['HR']]
 temp = dataset[:, indexes['Temp']]

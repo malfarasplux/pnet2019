@@ -1,0 +1,10 @@
+ESN_RF_multiprocessing_CrossValidation.py
+2019-08-28 12:14
+Dataset: new_dataset_AB.npy
+Using ESN: True
+(0.0000) 	 threshold
+0.0180 	 Pr
+1.0000 	 Re
+0.0353 	 F1
+0.0180 	 ACC
+0.4416 	 AUC

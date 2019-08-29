@@ -1,0 +1,15 @@
+13cc065b54b4@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
+/github/pnet2019/finalgridsearch/grid_search_mean_causal
+ESNtrainCV.py
+2019-08-29 13:21
+100 	 N 
+0.0001 	 scale 
+0.0060 	 mem 
+1.000 	 exp
+(-0.8382, 16.4934, 17.3316) 	 th_i, th_f, *th_sc
+0.0000 	 th
+0.0000 	 Pr
+0.0000 	 Re
+0.0000 	 F1
+0.0000 	 ACC
+0.7571 	 AUC
