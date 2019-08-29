@@ -5,7 +5,7 @@ import multiprocessing
 from ESNtools import *
 import time
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.naive_bayes import GaussianNB #BernoulliNB  as 
+from sklearn.naive_bayes import GaussianNB #BernoulliNB  as
 from sklearn.tree import DecisionTreeClassifier
 
 
@@ -66,8 +66,6 @@ def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id
 
     acc.append(accuracy_score(results, y_test))
     f1.append(f1_score(results, y_test))
-    print("Any pred NAN? ", np.isnan(pred).any())
-    gfgfs
     auc.append(roc_auc_score(y_test, pred))
 
     print("Accuracy: ", accuracy_score(results, y_test), flush=True)

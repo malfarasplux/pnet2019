@@ -1,0 +1,4 @@
+Code modified from /github/pnet2019/grid_searchAB
+Nanfill Nanfill (interpolation)
+Ranges adapted to match all cases
+full path access /github/pnet2019/ and /github/pnet2019/npy intended
