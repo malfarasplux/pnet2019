@@ -5,7 +5,7 @@
 # biased_regress = True
 # normal_equations = True
 dataset = "training_AB_interp_causal"
-path = "/../../Rui/Datasets/" + dataset +"/"
+path = "../../Rui/Datasets/" + dataset +"/"
 kfold_split = 10
 nan_to_zero = False
 mm = False
@@ -156,10 +156,10 @@ if not numpy_load:
 else:
 
     
-    npyfilename = "/../../Rui/Datasets/training_AB_patient.npy"
+    npyfilename = "../../Rui/Datasets/training_AB_patient.npy"
     patient = np.load(npyfilename)
     print(npyfilename, " loaded")
-    npyfilename = "/../../Rui/Datasets/training_AB_Y.npy"
+    npyfilename = "../../Rui/Datasets/training_AB_Y.npy"
     sepsis_label = np.load(npyfilename)
     print(npyfilename, " loaded")
 
@@ -173,7 +173,7 @@ else:
         print(npyfilename, '(mm) to be loaded')
 
     else:
-        npyfilename = "/../../Rui/Datasets/training_AB_interp_causal.npy"
+        npyfilename = "../../Rui/Datasets/training_AB_interp_causal.npy"
         print(npyfilename, '(not mm) to be loaded')
 
     n = len(np.unique(patient))
