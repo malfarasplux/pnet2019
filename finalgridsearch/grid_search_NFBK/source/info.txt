@@ -2,3 +2,4 @@ Code modified from /github/pnet2019/TrnNF_TstBK/AB
 NF BK (interpolation)
 Ranges adapted to match all cases
 full path access /github/pnet2019/ and /github/pnet2019/npy intended
+nan_to_zero must not apply to BK
