@@ -1,57 +1,9 @@
 import numpy as np
 from os import listdir
-from iterative_interpolation import *
+
 
 # path = "D:\Physionet Challenge\old_data\\"
 path = r"D:\Physionet Challenge\GitHub\pnet2019\training\\"
-
-
-def replace_nan(data, patients_id, value=None):
-    new_dataset = []
-    for id in np.unique(patients_id):
-        print(id)
-        features_ = data[np.where(patients_id == id)[0]]
-        patient = []
-        for h in range(len(features_)):
-            features = features_[:h+1]
-            aux = []
-            for feature in features.T:
-                mean = np.nanmean(feature)
-                std = np.nanstd(feature)
-                if ~np.isnan(feature).all():
-                    if value == 'mean':
-                        aux.append(np.nan_to_num(feature, nan=mean)[-1])
-                    elif value == 'normal':
-                        for j, measure in enumerate(feature):
-                            if np.isnan(measure):
-                                feature[j] = np.random.normal(mean, std)
-                        aux.append(feature[-1])
-                    elif value == 'interpolation':
-                        nan_bounds(feature)
-                        nan_interpolate(feature)
-                        aux.append(feature[-1])
-                    else:
-                        aux.append(np.nan_to_num(feature)[-1])
-                else:
-                    aux.append(np.zeros(np.shape(feature))[-1])
-            # print(np.shape(aux))
-            patient.append(aux)
-        new_dataset.append(np.vstack(patient))
-    print(np.shape(new_dataset))
-    return np.vstack(new_dataset)
-
-
-# data = np.load("./Datasets/training_AB.npy")
-# patients_id = np.load("./Datasets/training_AB_patient.npy")
-#
-# # dataset = replace_nan(data, patients_id, 'mean')
-# # np.save("training_AB_mean_causal", dataset)
-# #
-# # dataset_2 = replace_nan(data, patients_id, 'normal')
-# # np.save("training_AB_normal_causal", dataset_2)
-#
-# dataset = replace_nan(data, patients_id, 'interpolation')
-# np.save("training_AB_interp_causal", dataset)
 
 
 def generate_new_dataset(path, name='new_dataset_AB.npy'):
