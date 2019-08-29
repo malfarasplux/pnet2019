@@ -1,0 +1,15 @@
+dee7b0854267@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
+/github/pnet2019/grid_search_loop/Neurons/tr5000_N500
+ESNtrainCV.py
+2019-08-28 20:02
+500 	 N 
+1.250 	 scale 
+0.050 	 mem 
+1.000 	 exp
+(-0.1614, 0.7750, 0.9364) 	 th_i, th_f, *th_sc
+0.0000 	 th
+0.0000 	 Pr
+0.0000 	 Re
+0.0000 	 F1
+0.0000 	 ACC
+0.7101 	 AUC
