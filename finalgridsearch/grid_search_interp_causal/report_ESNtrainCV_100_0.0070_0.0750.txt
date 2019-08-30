@@ -1,0 +1,15 @@
+3b8406beaf39@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
+/github/pnet2019/finalgridsearch/grid_search_interp_causal
+ESNtrainCV.py
+2019-08-29 18:46
+100 	 N 
+0.0070 	 scale 
+0.0750 	 mem 
+1.000 	 exp
+(-0.0727, 0.2656, 0.3383) 	 th_i, th_f, *th_sc
+0.0000 	 th
+0.0000 	 Pr
+0.0000 	 Re
+0.0000 	 F1
+0.0000 	 ACC
+0.7295 	 AUC

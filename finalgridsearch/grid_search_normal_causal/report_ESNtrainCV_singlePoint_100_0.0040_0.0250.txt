@@ -1,0 +1,15 @@
+DESKTOP-0549TJJ@Windows-10-10.0.17763-SP0
+D:\PhysionetChallenge\GitHub\pnet2019\finalgridsearch\grid_search_normal_causal
+ESNtrainCV.py
+2019-08-30 14:15
+100 	 N 
+0.0040 	 scale 
+0.0250 	 mem 
+1.000 	 exp
+(-0.2514, 0.3089, 0.5604) 	 th_i, th_f, *th_sc
+0.0000 	 th
+0.0000 	 Pr
+0.0000 	 Re
+0.0000 	 F1
+0.0000 	 ACC
+0.7336 	 AUC
