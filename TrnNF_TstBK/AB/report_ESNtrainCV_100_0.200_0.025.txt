@@ -1,0 +1,15 @@
+2b983bb07d5d@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
+/github/pnet2019/TrnNF_TstBK/AB
+ESNtrainCV.py
+2019-08-28 22:38
+100 	 N 
+0.200 	 scale 
+0.025 	 mem 
+1.000 	 exp
+(-0.2982, 0.2789, 0.5772) 	 th_i, th_f, *th_sc
+0.1161 	 th
+0.0571 	 Pr
+0.0920 	 Re
+0.0705 	 F1
+0.9564 	 ACC
+0.6426 	 AUC
