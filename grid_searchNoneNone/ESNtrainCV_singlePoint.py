@@ -156,10 +156,10 @@ if not numpy_load:
 else:
 
     
-    npyfilename = "/github/pnet2019/npy/" + dataset + "_patient.npy"
+    npyfilename = "../Rui/Datasets/" + dataset + "_patient.npy"
     patient = np.load(npyfilename)
     print(npyfilename, " loaded")
-    npyfilename = "/github/pnet2019/npy/" + dataset + "_Y.npy"
+    npyfilename = "../Rui/Datasets/" + dataset + "_Y.npy"
     sepsis_label = np.load(npyfilename)
     print(npyfilename, " loaded")
 
@@ -173,7 +173,7 @@ else:
         print(npyfilename, '(mm) to be loaded')
 
     else:
-        npyfilename = "/github/pnet2019/npy/" + dataset + ".npy"
+        npyfilename = "../Rui/Datasets/" + dataset +  ".npy"
         print(npyfilename, '(not mm) to be loaded')
 
     n = len(np.unique(patient))
