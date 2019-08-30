@@ -1,0 +1,15 @@
+921a0527e15d@Linux-4.9.0-9-amd64-x86_64-with-debian-9.9
+/github/pnet2019/finalgridsearch/grid_search_BKBK
+ESNtrainCV.py
+2019-08-30 10:31
+100 	 N 
+0.0020 	 scale 
+0.0500 	 mem 
+1.0000 	 exp
+(-0.2884, 2.9146, 3.2030) 	 th_i, th_f, *th_sc
+0.0000 	 th
+0.0000 	 Pr
+0.0000 	 Re
+0.0000 	 F1
+0.0000 	 ACC
+0.7400 	 AUC
