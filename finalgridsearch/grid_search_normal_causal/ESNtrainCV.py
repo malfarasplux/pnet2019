@@ -4,7 +4,7 @@
 ## Config
 # biased_regress = True
 # normal_equations = True
-dataset = "training_AB_interp_causal"
+dataset = "training_AB_normal_causal"
 path = "../../Rui/Datasets/" + dataset + "/"
 kfold_split = 10
 nan_to_zero = False
@@ -17,10 +17,8 @@ import numpy as np
 
 ## ESN parameters
 N_def = [100]  # Neurons
-scale_def = [0.0001, 0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.010, 0.025, 0.050, 0.075, 0.1,
-             0.25, 0.5, 0.75, 1.0, 2.5, 5.0, 7.5, 10.0]  # scaling
-mem_def = [0.0001, 0.001, 0.002, 0.003, 0.004, 0.005, 0.006, 0.007, 0.008, 0.009, 0.010, 0.025, 0.050, 0.075, 0.1, 0.25,
-           0.5, 0.75, 1.0, 2.5, 5.0, 7.5, 10.0]  # memory
+scale_def = [0.0001, 0.001, 0.002, 0.003, 0.004, 0.005]  # scaling
+mem_def = [0.010, 0.025, 0.050, 0.075, 0.1, 0.25, 0.5, 0.75, 1.0, 2.5, 5.0, 7.5, 10.0]  # memory
 exponent_def = 1.0  # sigmoid exponent
 
 # Script name struct for report
@@ -178,7 +176,7 @@ else:
         print(npyfilename, '(mm) to be loaded')
 
     else:
-        npyfilename = "../../Rui/Datasets/training_AB_interp_causal.npy"
+        npyfilename = "../../Rui/Datasets/training_AB_normal_causal.npy"
         print(npyfilename, '(not mm) to be loaded')
 
     n = len(np.unique(patient))
@@ -233,7 +231,7 @@ groups = patient
 train_index, test_index = GSK.GroupStratifiedKFold(np.hstack([patient_sep.reshape(-1,1), groups.reshape(-1,1)]), 10)
 
 def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index):
-    script_name = 'ESNtrainCV'
+    script_name = 'ESNtrainCV_singlePoint'
     name_struct_meta = "_N_scale_mem"
     name_struct = '_{:03d}_{:1.4f}_{:1.4f}'.format(N, scale, mem)
 
@@ -299,7 +297,7 @@ def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, 
     th_f = np.max(results)
     
     ## AUC-based CV
-    AUC_CV = True
+    AUC_CV = False
     if AUC_CV:
         th_max = 0
         f1 = 0

@@ -4,8 +4,8 @@
 ## Config
 # biased_regress = True
 # normal_equations = True
-dataset = "training_AB_mean_causal"
-path = "../../Rui/Datasets/" + dataset + "/"
+dataset = "training_AB_interp_causal"
+path = "../../Rui/Datasets/" + dataset +"/"
 kfold_split = 10
 nan_to_zero = False
 mm = False
@@ -14,17 +14,16 @@ numpy_load = True
 nanfill = True
 
 import numpy as np
-
 ## ESN parameters
 N_def = [100]  # Neurons
-scale_def = [0.0001, 0.001, 0.002, 0.003, 0.004, 0.005]  # scaling
-mem_def = [0.010, 0.025, 0.050, 0.075, 0.1, 0.25, 0.5, 0.75, 1.0, 2.5, 5.0, 7.5, 10.0]  # memory
-exponent_def = 1.0  # sigmoid exponent
+scale_def = [0.0001] #scaling
+mem_def = [0.5]  #memory
+exponent_def = 1.0                                # sigmoid exponent
 
 # Script name struct for report
-# script_name = 'ESNtrainCV'
-# name_struct_meta = "_N_scale_mem"
-# name_struct = '_{:03d}_{:1.3f}_{:1.3f}'.format(N_def, scale_def, mem_def)
+#script_name = 'ESNtrainCV'
+#name_struct_meta = "_N_scale_mem"
+#name_struct = '_{:03d}_{:1.3f}_{:1.3f}'.format(N_def, scale_def, mem_def)
 
 ## Imports
 import os
@@ -41,20 +40,19 @@ from sklearn.metrics import recall_score
 from sklearn.metrics import roc_curve
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import f1_score
-# import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import ESNtools
 import GSK
 
-# Needed for reporting
+#Needed for reporting
 import platform
 import time
-
 
 # Fix boundary nans (replicate head/tail vals)
 def nan_bounds(feats):
     nanidx = np.where(np.isnan(feats))[0]
     pointer_left = 0
-    pointer_right = len(feats) - 1
+    pointer_right = len(feats)-1
     fix_left = pointer_left in nanidx
     fix_right = pointer_right in nanidx
     while fix_left:
@@ -63,7 +61,7 @@ def nan_bounds(feats):
             # print("pointer_left:", pointer_left)
         else:
             val_left = feats[pointer_left]
-            feats[:pointer_left] = val_left * np.ones((1, pointer_left), dtype=np.float)
+            feats[:pointer_left] = val_left*np.ones((1,pointer_left),dtype=np.float)
             fix_left = False
 
     while fix_right:
@@ -72,53 +70,50 @@ def nan_bounds(feats):
             # print("pointer_right:", pointer_right)
         else:
             val_right = feats[pointer_right]
-            feats[pointer_right + 1:] = val_right * np.ones((1, len(feats) - pointer_right - 1), dtype=np.float)
-            fix_right = False
-
-        # nan interpolation
-
-
+            feats[pointer_right+1:] = val_right*np.ones((1,len(feats)-pointer_right-1),dtype=np.float)
+            fix_right = False 
+        
+# nan interpolation
 def nan_interpolate(feats):
     nanidx = np.where(np.isnan(feats))[0]
     nan_remain = len(nanidx)
     nanid = 0
     while nan_remain > 0:
-        nanpos = nanidx[nanid]
-        nanval = feats[nanpos - 1]
+        nanpos = nanidx[nanid] 
+        nanval = feats[nanpos-1]
         nan_remain -= 1
 
         nandim = 1
         initpos = nanpos
 
         # Check whether it extends
-        while nanpos + 1 in nanidx:
+        while nanpos+1 in nanidx:
             nanpos += 1
             nanid += 1
             nan_remain -= 1
             nandim += 1
             # Average sides
-            if np.isfinite(feats[nanpos + 1]):
-                nanval = 0.5 * (nanval + feats[nanpos + 1])
+            if np.isfinite(feats[nanpos+1]):
+                nanval = 0.5 * (nanval + feats[nanpos+1])
 
-        # Single value average
+        # Single value average    
         if nandim == 1:
-            nanval = 0.5 * (nanval + feats[nanpos + 1])
-        feats[initpos:initpos + nandim] = nanval * np.ones((1, nandim), dtype=np.double)
+            nanval = 0.5 * (nanval + feats[nanpos+1])
+        feats[initpos:initpos+nandim] = nanval*np.ones((1,nandim),dtype=np.double)
         nanpos += 1
-        nanid += 1
+        nanid += 1    
 
-    ## Get sepsis patients
-
-
+## Get sepsis patients
 def get_sepsis_patients(sepsis_label, patient):
-    patient_sep = np.zeros(len(sepsis_label), dtype=np.int)
+    patient_sep = np.zeros(len(sepsis_label),dtype=np.int)
     for i in range(n):
-        i_pat = np.where(patient == i)[0]
-        patient_sep[i_pat] = int(np.sum(sepsis_label[i_pat]) > 0) * np.ones(len(i_pat), dtype=np.int)
-
-    patient_sep_idx = np.where(patient_sep != 0)[0]
-    patient_healthy_idx = np.where(patient_sep == 0)[0]
+        i_pat = np.where(patient==i)[0]
+        patient_sep[i_pat] = int(np.sum(sepsis_label[i_pat])>0)*np.ones(len(i_pat), dtype=np.int)
+        
+    patient_sep_idx = np.where(patient_sep!=0)[0]
+    patient_healthy_idx = np.where(patient_sep==0)[0]
     return patient_sep, patient_sep_idx, patient_healthy_idx
+
 
 
 ## Create the feature matrix
@@ -127,24 +122,25 @@ patient = []
 sepsis_label = []
 dataloaded = False
 
-## Read data
+
+## Read data 
 if not numpy_load:
     ## Folder and files
-    fnames = os.listdir(path)
+    fnames = os.listdir(path)  
     fnames.sort()
     if 'README.md' in fnames:
         fnames.remove('README.md')
     print('last file: ', fnames[-1])
-
+    
     n = len(fnames)
     print(n, ' files present')
-
+    
     ## read data
     for i in range(n):
         input_file = os.path.join(path, fnames[i])
-        if i == 0:
+        if i ==0:
             data, sep_lab, columns = ESNtools.read_challenge_data_label(input_file, return_header=True)
-        else:
+        else: 
             data, sep_lab = ESNtools.read_challenge_data_label(input_file)
         features.append(data)
         sepsis_label.append(sep_lab)
@@ -152,13 +148,14 @@ if not numpy_load:
         patient.append(pat)
 
     feature_matrix = np.concatenate(features)
-    del (features)
+    del(features)
     sepsis_label = np.concatenate(sepsis_label)
     patient = np.concatenate(patient)
     dataloaded = True
-
+    
 else:
 
+    
     npyfilename = "../../Rui/Datasets/training_AB_patient.npy"
     patient = np.load(npyfilename)
     print(npyfilename, " loaded")
@@ -166,17 +163,17 @@ else:
     sepsis_label = np.load(npyfilename)
     print(npyfilename, " loaded")
 
-    # ADD nanfill tag
+#ADD nanfill tag
     if nanfill:
-        dataset = dataset + "_nanfill"
-
+        dataset = dataset + "_nanfill"    
+    
     if mm:
         npyfilename = "/github/pnet2019/npy/" + dataset + "_mm.npy"
         mm = False
         print(npyfilename, '(mm) to be loaded')
 
     else:
-        npyfilename = "../../Rui/Datasets/training_AB_mean_causal.npy"
+        npyfilename = "../../Rui/Datasets/training_AB_interp_causal.npy"
         print(npyfilename, '(not mm) to be loaded')
 
     n = len(np.unique(patient))
@@ -189,8 +186,8 @@ else:
 patient = patient.flatten()
 
 ## Separate pointers
-feature_phys = feature_matrix[:,:-6]    ## Physiology
-feature_demog = feature_matrix[:,-6:]   ## Demographics
+feature_phys = feature_matrix[:, :-6]    ## Physiology
+feature_demog = feature_matrix[:, -6:]   ## Demographics
 
 ## Normalize mm(all) or std (sepsis, phys) vals, feature-based
 if mm:

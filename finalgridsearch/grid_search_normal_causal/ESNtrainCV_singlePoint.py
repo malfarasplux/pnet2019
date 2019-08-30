@@ -4,7 +4,7 @@
 ## Config
 # biased_regress = True
 # normal_equations = True
-dataset = "training_AB_mean_causal"
+dataset = "training_AB_normal_causal"
 path = "../../Rui/Datasets/" + dataset + "/"
 kfold_split = 10
 nan_to_zero = False
@@ -17,8 +17,8 @@ import numpy as np
 
 ## ESN parameters
 N_def = [100]  # Neurons
-scale_def = [0.0001, 0.001, 0.002, 0.003, 0.004, 0.005]  # scaling
-mem_def = [0.010, 0.025, 0.050, 0.075, 0.1, 0.25, 0.5, 0.75, 1.0, 2.5, 5.0, 7.5, 10.0]  # memory
+scale_def = [0.0001] #scaling
+mem_def = [0.5]  #memory
 exponent_def = 1.0  # sigmoid exponent
 
 # Script name struct for report
@@ -176,7 +176,7 @@ else:
         print(npyfilename, '(mm) to be loaded')
 
     else:
-        npyfilename = "../../Rui/Datasets/training_AB_mean_causal.npy"
+        npyfilename = "../../Rui/Datasets/training_AB_normal_causal.npy"
         print(npyfilename, '(not mm) to be loaded')
 
     n = len(np.unique(patient))
