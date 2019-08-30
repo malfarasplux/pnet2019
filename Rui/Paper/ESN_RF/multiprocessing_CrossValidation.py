@@ -18,7 +18,7 @@ def cross_validation(train_index, test_index, X_interp, X, y_interp, patients_id
     if classifier == 'GB':
         elf = GradientBoostingClassifier(n_estimators=n_estimators)
     elif classifier == 'RF':
-        elf = RandomForestClassifier(n_estimators=n_estimators)
+        elf = RandomForestClassifier(n_estimators=n_estimators, n_jobs=3)
     else:
         elf = KNeighborsClassifier(weights='distance', n_jobs=1)
 
