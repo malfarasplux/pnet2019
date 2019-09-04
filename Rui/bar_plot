@@ -1,0 +1,65 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+path = './Datasets/training_AB.npy'
+dataset = np.load(path)
+
+features = 'HR|O2Sat|Temp|SBP|MAP|DBP|Resp|EtCO2|BaseExcess|HCO3|FiO2|pH|PaCO2|SaO2|AST|BUN|Alkalinephos|Calcium|Chloride|Creatinine|Bilirubin_direct|Glucose|Lactate|Magnesium|Phosphate|Potassium|Bilirubin_total|TroponinI|Hct|Hgb|PTT|WBC|Fibrinogen|Platelets|Age|Gender|Unit1|Unit2|HospAdmTime|ICULOS|SepsisLabel'.split('|')
+
+values = []
+nans = []
+for feature in dataset.T:
+    num_nan = len(np.where(np.isnan(feature))[0])
+    total = len(feature)
+    values.append((total-num_nan)*100/total)
+    nans.append(num_nan*100/total)
+
+ind = np.arange(np.shape(dataset)[1])    # the x locations for the groups
+width = .9      # the width of the bars: can also be len(x) sequence
+
+p1 = plt.barh(ind, values, width)
+p2 = plt.barh(ind, nans, width, left=values)
+
+plt.xlabel('Percentage (%)')
+plt.ylabel('Feature')
+plt.title('Number of NaN vs. Number of Values')
+plt.yticks(ind, features, fontsize=10, rotation='horizontal') # [str(i) for i in ind]
+#plt.yticks(np.arange(0, 81, 10))
+plt.legend((p1[0], p2[0]), ('Values', 'NaN'))
+
+plt.show()
+
+
+
+labels = ['ESN', 'DT', 'GNB', 'RF', 'GB', 'ESN + DT', 'ESN + GNB', 'ESN + RF', 'ESN + GB', 'Const.', 'Mean', 'Normal', 'Interp.']
+
+ESN_value = [14.79]
+classifiers_values = [8.78, 7.28, 16.80, 18.29]
+ESN_classifiers_values = [6.75, 6.09, 14.44, 15.34]
+NaN_values = [14.79, 13.91, 15.2, 15.49]
+
+first_layer = [ESN_value[0], classifiers_values[0], ESN_classifiers_values[0], NaN_values[0]]
+second_layer = [0, classifiers_values[1], ESN_classifiers_values[1], NaN_values[1]]
+third_layer = [0, classifiers_values[2], ESN_classifiers_values[2], NaN_values[2]]
+fourth_layer = [0, classifiers_values[3], ESN_classifiers_values[3], NaN_values[3]]
+
+ind = np.arange(4)    # the x locations for the groups
+width = .2      # the width of the bars: can also be len(x) sequence
+
+x_axis = [[0.5], 1.5 + ind/4 - .3, 3 + ind/4 - .3, 4.5 + ind/4 - .3]
+
+fig, ax = plt.subplots()
+rects1 = ax.barh(x_axis[0], ESN_value, width, label='ESN')
+rects2 = ax.barh(x_axis[1], classifiers_values, width, label='Classifiers')
+rects3 = ax.barh(x_axis[2], ESN_classifiers_values, width, label='ESN + Classifiers')
+rects4 = ax.barh(x_axis[3], NaN_values, width, label='NaN Replacement')
+
+
+plt.xlabel('Percentage (%)')
+plt.ylabel('Type')
+plt.title('F1-Score Comparison')
+plt.yticks(np.concatenate(x_axis), labels, fontsize=10, rotation='horizontal') # [str(i) for i in ind]
+plt.legend()
+#plt.yticks(np.arange(0, 81, 10))
+#plt.legend((p1[0], p2[0], p3[0], p4[0]), ('ESN', 'NaN'))

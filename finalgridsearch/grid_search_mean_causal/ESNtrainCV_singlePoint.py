@@ -231,7 +231,7 @@ groups = patient
 train_index, test_index = GSK.GroupStratifiedKFold(np.hstack([patient_sep.reshape(-1,1), groups.reshape(-1,1)]), 10)
 
 def get_gridsearchpoint(feature_matrix, patient, sepsis_label, M, Mb, N, scale, mem, sigmoid_exponent, train_index, test_index):
-    script_name = 'ESNtrainCV_singlePoint'
+    script_name = 'ESNtrainCV_RealsinglePoint'
     name_struct_meta = "_N_scale_mem"
     name_struct = '_{:03d}_{:1.4f}_{:1.4f}'.format(N, scale, mem)
 
