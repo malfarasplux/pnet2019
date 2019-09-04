@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+'''Gráfico de barras sem sobreposição - Features NaNs'''
+
 path = './Datasets/training_AB.npy'
 dataset = np.load(path)
 
@@ -30,7 +32,7 @@ plt.legend((p1[0], p2[0]), ('Values', 'NaN'))
 
 plt.show()
 
-
+'''Gráfico de barras sem sobreposição - F1-Score'''
 
 labels = ['ESN', 'DT', 'GNB', 'RF', 'GB', 'ESN + DT', 'ESN + GNB', 'ESN + RF', 'ESN + GB', 'Const.', 'Mean', 'Normal', 'Interp.']
 
@@ -63,3 +65,64 @@ plt.yticks(np.concatenate(x_axis), labels, fontsize=10, rotation='horizontal') #
 plt.legend()
 #plt.yticks(np.arange(0, 81, 10))
 #plt.legend((p1[0], p2[0], p3[0], p4[0]), ('ESN', 'NaN'))
+
+
+'''Gráfico de barras com sobreposição - F1-Score'''
+
+labels = ['ESN', 'Classifier', 'ESN + Classifier', 'NaN Strategy']
+
+ESN_value = [14.79]
+
+classifiers = ['GNB', 'DT', 'RF', 'GB']
+classifiers_values = [7.28, 8.78, 16.80, 18.29]
+ESN_classifiers = ['ESN+GNB', 'ESN+DT', 'ESN+RF', 'ESN+GB']
+ESN_classifiers_values = [6.09, 6.75, 14.44, 15.34]
+NaN = ['Mean', 'Const.', 'Norm.', 'Interp.']
+NaN_values = [13.91, 14.79, 15.2, 15.49]
+
+
+ind = np.arange(4)    # the x locations for the groups
+width = .2      # the width of the bars: can also be len(x) sequence
+
+x_axis = [0.5, 1.5, 3, 4.5]
+pair = width + .05
+odd = width - 0.05
+
+fig, ax = plt.subplots()
+rects1 = ax.barh(x_axis[0], ESN_value[0], width, label='ESN')
+plt.text(ESN_value[0], x_axis[0]-pair, 'ESN')
+plt.vlines(ESN_value[0], x_axis[0]-pair, x_axis[0])
+
+for i in range(4):
+    rects2 = ax.barh(x_axis[1], classifiers_values[i], width, label='Classifiers', color='c', alpha=1/(1.5*(i+1)))
+    rects3 = ax.barh(x_axis[2], ESN_classifiers_values[i], width, label='ESN + Classifiers', color='g', alpha=1/(1.5*(i+1)))
+    rects4 = ax.barh(x_axis[3], NaN_values[i], width, label='NaN Replacement', color='r', alpha=1/(1.5*(i+1)))
+    if i == 0:
+        plt.legend()
+		
+    if i % 2 == 0:
+        plt.text(x=classifiers_values[i], y=x_axis[1]-pair, s=classifiers[i])
+        plt.text(x=ESN_classifiers_values[i], y=x_axis[2]-pair, s=ESN_classifiers[i])
+        plt.text(x=NaN_values[i], y=x_axis[3]-pair, s=NaN[i])
+        
+        plt.vlines(classifiers_values[i], x_axis[1]-pair, x_axis[1])
+        plt.vlines(ESN_classifiers_values[i], x_axis[2]-pair, x_axis[2])
+        plt.vlines(NaN_values[i], x_axis[3]-pair, x_axis[3])
+    else:
+        plt.text(x=classifiers_values[i], y=x_axis[1]+odd, s=classifiers[i])
+        plt.text(x=ESN_classifiers_values[i], y=x_axis[2]+odd, s=ESN_classifiers[i])
+        plt.text(x=NaN_values[i], y=x_axis[3]+odd, s=NaN[i])
+        
+        plt.vlines(classifiers_values[i], x_axis[1], x_axis[1]+odd)
+        plt.vlines(ESN_classifiers_values[i], x_axis[2], x_axis[2]+odd)
+        plt.vlines(NaN_values[i], x_axis[3], x_axis[3]+odd)
+
+
+
+plt.xlabel('Percentage (%)')
+plt.ylabel('Type')
+plt.title('F1-Score Comparison')
+plt.yticks(x_axis, labels, fontsize=10, rotation='horizontal') # [str(i) for i in ind]
+#plt.yticks(np.arange(0, 81, 10))
+#plt.legend((p1[0], p2[0], p3[0], p4[0]), ('ESN', 'NaN'))
+
