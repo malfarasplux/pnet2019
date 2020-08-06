@@ -20,7 +20,7 @@ This work was supported by Marie Skłodowska Curie Actions ITN [AffecTech](http:
 
 This is a collaboration between PLUX Wireless Biosignals S.A. (Lisbon), Universitat Jaume I (Castelló) and LIBPhys-UNL (Caparica).
 
-
+![image](https://drive.google.com/uc?export=view&id=16D26Tr8sGPzXcc9Ec0EkwyGDsvXqrRsS)    
 
 [1. Challenge info](#site)  
 [2. Data (only private access, after team's disclaimer)](#data)  
